@@ -1,0 +1,16 @@
+# Node / Logs / Temp
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Project custom exclusions
+.agents/
+references/
+Stars of the City TTRPG System.md

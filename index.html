@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STARS OF THE CITY // TERMINAL PROTOCOL 0.7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="crt-screen">
+  <!-- CRT SCANLINES & FLICKER OVERLAY -->
+  <div class="crt-scanlines"></div>
+  <div class="crt-vignette"></div>
+
+  <!-- TERMINAL HEADER -->
+  <header class="term-header">
+    <div class="term-header-inner">
+      <div class="term-branding">
+        <span class="sys-prefix">[SYS.ROOT]</span>
+        <span class="sys-title">HANA_NET // COMBAT_PAGE_COMPILER</span>
+        <span class="sys-version">v0.7.4-BETA</span>
+      </div>
+      <div class="term-actions">
+        <button id="btn-export-markdown" class="term-btn" title="Exportar Deck para Markdown">[ EXPORT.MD ]</button>
+        <button id="btn-export-json" class="term-btn" title="Salvar Build em JSON">[ SAVE.JSON ]</button>
+        <label class="term-btn file-upload-label" title="Carregar Build JSON">
+          <span>[ LOAD.JSON ]</span>
+          <input type="file" id="file-import-json" accept=".json" style="display:none;">
+        </label>
+        <button id="btn-clear-deck" class="term-btn term-btn-danger" title="Limpar todo o Deck">[ RESET.SYS ]</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN TERMINAL INTERFACE -->
+  <main class="term-container">
+    <!-- LEFT PANEL: COMBAT DECK BUFFER -->
+    <aside class="term-panel">
+      <div class="panel-title-bar">
+        <span class="panel-tag">&gt;&gt; DECK_BUFFER</span>
+        <span id="deck-count-badge" class="term-badge">4 / 6 PAGES</span>
+      </div>
+
+      <!-- DECK METRICS -->
+      <div class="metrics-block">
+        <div class="metric-row">
+          <span>AVG_LIGHT_COST:</span>
+          <span id="stat-avg-cost" class="text-bright">1.8</span>
+        </div>
+        <div class="metric-row">
+          <span>DICE_TOTAL:</span>
+          <span id="stat-total-dice" class="text-bright">9 DADOS</span>
+        </div>
+        <div class="dice-dist-bar">
+          <div id="bar-slash" class="bar-segment bar-slash" title="Slash" style="width: 45%;"></div>
+          <div id="bar-pierce" class="bar-segment bar-pierce" title="Pierce" style="width: 25%;"></div>
+          <div id="bar-blunt" class="bar-segment bar-blunt" title="Blunt" style="width: 15%;"></div>
+          <div id="bar-defense" class="bar-segment bar-defense" title="Defesa" style="width: 15%;"></div>
+        </div>
+        <div class="dice-legend">
+          <span>[S]LASH</span>
+          <span>[P]IERCE</span>
+          <span>[B]LUNT</span>
+          <span>[D]EF</span>
+        </div>
+      </div>
+
+      <!-- DECK SKILL LIST -->
+      <div id="deck-skill-list" class="term-list deck-skill-list">
+        <!-- Rendered via JS -->
+      </div>
+
+      <button id="btn-add-new-skill" class="term-btn term-btn-primary btn-block">
+        + NOVA PAGINA DE COMBATE
+      </button>
+
+      <!-- CLASH SIMULATOR / TELEMETRY -->
+      <div class="telemetry-block">
+        <div class="panel-subtitle">&gt; CLASH_SIMULATOR</div>
+        <button id="btn-roll-active-skill" class="term-btn btn-block">
+          [ EXEC_DICE_ROLL ]
+        </button>
+        <div id="roll-results-area" class="roll-results term-code-box">
+          <span class="text-dim">READY FOR TELEMETRY INPUT...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: WORKBENCH COMPILER -->
+    <section class="term-panel term-panel-main">
+      <div class="workbench-top">
+        <div class="field-group">
+          <label class="field-label">&gt; PAGE_IDENTIFIER:</label>
+          <input type="text" id="input-skill-name" class="term-input term-input-title" value="Single Strike" spellcheck="false">
+        </div>
+
+        <div class="status-ribbon">
+          <span id="badge-skill-type" class="term-badge">STANDARD_SKILL</span>
+          <span id="badge-skill-cost" class="term-badge">LIGHT_REQ: 1</span>
+          <span id="badge-module-count" class="term-badge">MODS: 0 / 4 [R1: 0/3 | R2: 0/1]</span>
+          <span id="badge-validation-status" class="term-badge badge-valid">STATUS: VALID</span>
+        </div>
+
+        <!-- DIAGNOSTIC FEEDBACK -->
+        <div id="card-validation-box" class="card-validation-box">
+          <!-- Live rule checks -->
+        </div>
+
+        <div class="term-tabs">
+          <button class="term-tab active" data-tab="tab-base">[ 1. BASE_SELECTION ]</button>
+          <button class="term-tab" data-tab="tab-modules">[ 2. MODULE_ATTACHMENT ]</button>
+          <button class="term-tab" data-tab="tab-unique">[ 3. UNIQUE_PRESETS ]</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: BASE CARDS -->
+      <div id="tab-base" class="tab-content active">
+        <div class="filter-strip">
+          <span class="text-dim">LIGHT_FILTER:</span>
+          <button class="term-pill active" data-cost-filter="all">[ALL]</button>
+          <button class="term-pill" data-cost-filter="0">[0 LIGHT]</button>
+          <button class="term-pill" data-cost-filter="1">[1 LIGHT]</button>
+          <button class="term-pill" data-cost-filter="2">[2 LIGHT]</button>
+          <button class="term-pill" data-cost-filter="3">[3 LIGHT]</button>
+        </div>
+
+        <div id="base-cards-grid" class="base-cards-grid">
+          <!-- Rendered via JS -->
+        </div>
+
+        <div class="config-subpanel">
+          <div class="panel-subtitle">&gt; DAMAGE_TYPE_ALLOCATION</div>
+          <div id="dice-type-selectors" class="dice-type-selectors">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: MODULES COMPILER -->
+      <div id="tab-modules" class="tab-content">
+        <div class="search-strip">
+          <input type="text" id="input-module-search" class="term-input" placeholder="SEARCH_MODULE_QUERY (ex: Bleed, Power, Light)..." spellcheck="false">
+          <div class="pill-group">
+            <button class="term-pill active" data-mod-rank="all">[ALL_RANKS]</button>
+            <button class="term-pill" data-mod-rank="1">[RANK 1]</button>
+            <button class="term-pill" data-mod-rank="2">[RANK 2]</button>
+            <button class="term-pill" data-mod-rank="3">[RANK 3]</button>
+          </div>
+        </div>
+
+        <div class="module-columns">
+          <div class="module-col">
+            <div class="panel-subtitle">&gt; MODULE_REGISTRY</div>
+            <div id="modules-catalog-list" class="term-list mod-list">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+          <div class="module-col">
+            <div class="panel-subtitle">&gt; INSTALLED_MODULES (<span id="installed-mod-count">0</span>)</div>
+            <div id="modules-installed-list" class="term-list mod-list">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: UNIQUE PRESETS -->
+      <div id="tab-unique" class="tab-content">
+        <div id="unique-skills-grid" class="unique-skills-grid">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: COMBAT CARD TERMINAL SCHEMATIC -->
+    <aside class="term-panel">
+      <div class="panel-title-bar">
+        <span class="panel-tag">&gt;&gt; SCHEMATIC_PREVIEW</span>
+        <span class="term-badge">LIBRARY_PROTOCOL</span>
+      </div>
+
+      <!-- RETRO CRT MONOCHROME COMBAT PAGE -->
+      <div class="schematic-wrapper">
+        <div id="combat-card-element" class="term-card">
+          <div class="card-edge-header">
+            <div class="card-cost-digit">
+              <span class="cost-label">LIGHT</span>
+              <span id="card-render-cost" class="cost-num">1</span>
+            </div>
+            <div class="card-titles">
+              <div id="card-render-name" class="card-title-text">SINGLE STRIKE</div>
+              <div id="card-render-rarity" class="card-sub-text">STANDARD COMBAT PAGE</div>
+            </div>
+          </div>
+
+          <div class="card-vector-art">
+            <pre class="ascii-art">
+  /| ________________
+O|===|* >------------>
+  \| ----------------</pre>
+          </div>
+
+          <div id="card-render-global-effects" class="card-global-box">
+            <!-- Global tags -->
+          </div>
+
+          <div id="card-render-dice-list" class="card-dice-stack">
+            <!-- Dice rows -->
+          </div>
+
+          <div class="card-edge-footer">
+            <span>SOTC_SYS // VER_0.7</span>
+            <span id="card-render-modules-badge">0 MODS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-stack">
+        <button id="btn-save-to-deck" class="term-btn term-btn-primary btn-block">
+          [ WRITE_TO_BUFFER ]
+        </button>
+        <button id="btn-copy-card-markdown" class="term-btn btn-block">
+          [ COPY_MARKDOWN_BLOCK ]
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- TERMINAL TOAST LOG -->
+  <div id="toast-notification" class="term-toast"></div>
+
+  <!-- SCRIPTS -->
+  <script src="data/skill_bases.js"></script>
+  <script src="data/modules.js"></script>
+  <script src="data/unique_skills.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
