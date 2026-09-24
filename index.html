@@ -23,7 +23,7 @@
         <span class="sys-version">v0.7.4-BETA</span>
       </div>
       <div class="term-actions">
-        <button id="btn-toggle-hb" class="term-btn" title="Alternar Conteúdo Homebrew/Community">[ HB_CONTENT: OFF ]</button>
+        <button id="btn-open-hb-modal" class="term-btn" title="Abrir Gerenciador de Homebrew / Conteúdo Comunitário">[ HOMEBREW_MANAGER (<span id="header-hb-count">0</span>) ]</button>
         <button id="btn-toggle-crt" class="term-btn" title="Alternar Filtro CRT">[ CRT_FX: ON ]</button>
         <button id="btn-export-markdown" class="term-btn" title="Exportar Deck para Markdown">[ EXPORT.MD ]</button>
         <button id="btn-export-json" class="term-btn" title="Salvar Build em JSON">[ SAVE.JSON ]</button>
@@ -115,8 +115,7 @@
           <button class="term-tab" data-tab="tab-modules">[ 2. MODULE_ATTACHMENT ]</button>
           <button class="term-tab" data-tab="tab-spare">[ 3. SPARE_MODULES_VAULT ]</button>
           <button class="term-tab" data-tab="tab-unique">[ 4. UNIQUE_PRESETS ]</button>
-          <button class="term-tab" data-tab="tab-homebrew">[ 5. HOMEBREW_MANAGER ]</button>
-          <button class="term-tab" data-tab="tab-glossary">[ 6. SYSTEM_GLOSSARY ]</button>
+          <button class="term-tab" data-tab="tab-glossary">[ 5. SYSTEM_GLOSSARY ]</button>
         </div>
       </div>
 
@@ -220,27 +219,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: HOMEBREW & COMMUNITY CONTENT MANAGER -->
-      <div id="tab-homebrew" class="tab-content">
-        <div class="spare-vault-header">
-          <div class="vault-info">
-            <span class="panel-subtitle">&gt; HOMEBREW_&amp;_COMMUNITY_MODULE_MANAGER</span>
-            <p class="text-dim" style="font-size:11px; margin-top:2px;">
-              Por padrão, todos os conteúdos Homebrew e Comunitários começam desativados. Você pode ativar/desativar cada autor ou módulo individualmente nesta lista!
-            </p>
-          </div>
-          <div class="vault-controls">
-            <button id="btn-hb-enable-all" class="term-btn">[ ENABLE_ALL_HB ]</button>
-            <button id="btn-hb-disable-all" class="term-btn term-btn-danger">[ DISABLE_ALL_HB ]</button>
-          </div>
-        </div>
-
-        <div id="homebrew-manager-list" class="term-list mod-list" style="max-height: 520px; overflow-y: auto;">
-          <!-- Rendered via JS with checkboxes/switches per author and module -->
-        </div>
-      </div>
-
-      <!-- TAB 6: SYSTEM GLOSSARY & ANNOTATIONS -->
+      <!-- TAB 5: SYSTEM GLOSSARY & ANNOTATIONS -->
       <div id="tab-glossary" class="tab-content">
         <div class="search-strip">
           <input type="text" id="input-glossary-search" class="term-input" placeholder="SEARCH_RULES_GLOSSARY (ex: Bleed, Fragile, Tremor Burst, Clash Win)..." spellcheck="false">
@@ -325,6 +304,32 @@ O|===|* >------------>
 
   <!-- TERMINAL TOAST LOG -->
   <div id="toast-notification" class="term-toast"></div>
+
+  <!-- HOMEBREW MANAGER RETRO MODAL OVERLAY -->
+  <div id="hb-modal-overlay" class="term-modal-overlay" style="display:none;">
+    <div class="term-modal-window">
+      <div class="modal-header">
+        <div class="modal-title">&gt;&gt; HOMEBREW_&amp;_COMMUNITY_CONTENT_MANAGER</div>
+        <button id="btn-close-hb-modal" class="term-btn term-btn-danger" style="padding:2px 8px;">[ CLOSE_X ]</button>
+      </div>
+      <div class="modal-body">
+        <div class="spare-vault-header" style="margin-bottom:8px;">
+          <div class="vault-info">
+            <p class="text-dim" style="font-size:11px;">
+              Ative ou desative conteúdos criados pela comunidade por autor ou individualmente:
+            </p>
+          </div>
+          <div class="vault-controls">
+            <button id="btn-hb-enable-all" class="term-btn">[ ENABLE_ALL_HB ]</button>
+            <button id="btn-hb-disable-all" class="term-btn term-btn-danger">[ DISABLE_ALL_HB ]</button>
+          </div>
+        </div>
+        <div id="homebrew-manager-list" class="term-list mod-list" style="max-height: 460px; overflow-y: auto;">
+          <!-- Rendered via JS with checkboxes/switches per author and module -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- SCRIPTS -->
   <script src="data/glossary.js"></script>

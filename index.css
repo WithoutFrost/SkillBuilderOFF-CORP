@@ -850,6 +850,47 @@ body.crt-disabled .crt-vignette {
   cursor: pointer;
 }
 
+/* Modal Overlay Styles */
+.term-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.term-modal-window {
+  background: var(--term-panel-bg);
+  border: 2px solid var(--term-border-bright);
+  box-shadow: 0 0 25px var(--term-border-glow);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--term-border);
+  background: var(--term-sub-bg);
+}
+.modal-title {
+  color: var(--term-amber);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.modal-body {
+  padding: 14px;
+  overflow-y: auto;
+}
+
 @media (max-width: 1200px) {
   .term-container {
     grid-template-columns: 1fr;

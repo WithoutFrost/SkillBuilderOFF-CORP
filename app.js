@@ -1027,6 +1027,12 @@ function renderHomebrewManager() {
   if (!container) return;
   container.innerHTML = '';
 
+  // Update header count badge
+  const headerCountEl = document.getElementById('header-hb-count');
+  if (headerCountEl) {
+    headerCountEl.textContent = state.enabledHbIds.size;
+  }
+
   // Collect all homebrew items (modules and bases)
   const hbModules = window.MODULES.filter(m => m.isHomebrew);
   const hbBases = window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit);
@@ -1414,23 +1420,31 @@ function setupEvents() {
     });
   }
 
-  // Homebrew Header Toggle Button (Quick Toggle)
-  const btnToggleHb = document.getElementById('btn-toggle-hb');
-  if (btnToggleHb) {
-    const hasAny = state.enabledHbIds.size > 0;
-    btnToggleHb.textContent = hasAny ? `[ HB_ACTIVE: ${state.enabledHbIds.size} ]` : '[ HB_ACTIVE: 0 ]';
-    btnToggleHb.addEventListener('click', () => {
-      if (state.enabledHbIds.size > 0) {
-        state.enabledHbIds.clear();
-        showToast('ALL_HOMEBREW_DISABLED.');
-      } else {
-        window.MODULES.filter(m => m.isHomebrew).forEach(m => state.enabledHbIds.add(m.id));
-        window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit).forEach(b => state.enabledHbIds.add(b.id));
-        showToast('ALL_HOMEBREW_ENABLED.');
-      }
-      persistState();
+  // Homebrew Modal Open & Close Event Handlers
+  const btnOpenHbModal = document.getElementById('btn-open-hb-modal');
+  const btnCloseHbModal = document.getElementById('btn-close-hb-modal');
+  const hbModalOverlay = document.getElementById('hb-modal-overlay');
+
+  if (btnOpenHbModal && hbModalOverlay) {
+    btnOpenHbModal.addEventListener('click', () => {
+      renderHomebrewManager();
+      hbModalOverlay.style.display = 'flex';
+    });
+  }
+
+  if (btnCloseHbModal && hbModalOverlay) {
+    btnCloseHbModal.addEventListener('click', () => {
+      hbModalOverlay.style.display = 'none';
       renderAll();
-      btnToggleHb.textContent = state.enabledHbIds.size > 0 ? `[ HB_ACTIVE: ${state.enabledHbIds.size} ]` : '[ HB_ACTIVE: 0 ]';
+    });
+  }
+
+  if (hbModalOverlay) {
+    hbModalOverlay.addEventListener('click', (e) => {
+      if (e.target === hbModalOverlay) {
+        hbModalOverlay.style.display = 'none';
+        renderAll();
+      }
     });
   }
 
