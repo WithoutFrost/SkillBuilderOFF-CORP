@@ -371,6 +371,77 @@ function renderUniqueSkills() {
   });
 }
 
+function matchModuleSearch(mod, rawQuery) {
+  if (!rawQuery || !rawQuery.trim()) return true;
+
+  const cleanQ = rawQuery
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+  const queryTerms = cleanQ.split(/\s+/).filter(Boolean);
+  const effectStr = typeof mod.effectText === 'function' ? (mod.effectText(1, {}) || '') : (mod.effectText || '');
+
+  const searchableText = [
+    mod.name || '',
+    mod.id || '',
+    mod.tag || '',
+    mod.description || '',
+    mod.category || '',
+    mod.source || '',
+    effectStr
+  ].join(' ')
+   .normalize("NFD")
+   .replace(/[\u0300-\u036f]/g, "")
+   .toLowerCase();
+
+  const ptSynonyms = {
+    'poder': 'power',
+    'forca': 'power',
+    'força': 'power',
+    'sangramento': 'bleed',
+    'sangria': 'bleed',
+    'fragil': 'fragile',
+    'frágil': 'fragile',
+    'queimadura': 'burn',
+    'fogo': 'burn',
+    'paralisia': 'paralysis',
+    'bloqueio': 'block',
+    'esquiva': 'evade',
+    'evasao': 'evade',
+    'evasão': 'evade',
+    'corte': 'slash',
+    'perfuracao': 'pierce',
+    'perfurar': 'pierce',
+    'impacto': 'blunt',
+    'contundente': 'blunt',
+    'stagger': 'stagger resist desequilibrio atordoamento',
+    'desequilibrio': 'stagger',
+    'desequilíbrio': 'stagger',
+    'cura': 'heal recover regain',
+    'recuperar': 'regain recover heal',
+    'luz': 'light cost',
+    'custo': 'cost light',
+    'acerto': 'hit',
+    'vitoria': 'clash win',
+    'vitória': 'clash win',
+    'derrota': 'clash lose',
+    'uso': 'on use combat start',
+    'inicio': 'combat start on use',
+    'início': 'combat start on use'
+  };
+
+  return queryTerms.every(term => {
+    if (searchableText.includes(term)) return true;
+    const syn = ptSynonyms[term];
+    if (syn && searchableText.includes(syn)) return true;
+    const termClean = term.replace(/[\[\]\(\)\-\_]/g, "");
+    if (termClean && searchableText.replace(/[\[\]\(\)\-\_]/g, " ").includes(termClean)) return true;
+    return false;
+  });
+}
+
 function renderModuleCatalog() {
   const catalogList = document.getElementById('modules-catalog-list');
   const installedList = document.getElementById('modules-installed-list');
@@ -385,16 +456,13 @@ function renderModuleCatalog() {
     if (!isItemAllowed(mod)) return false;
 
     if (state.moduleRankFilter !== 'all' && mod.rank !== parseInt(state.moduleRankFilter)) return false;
-    if (state.moduleSearchQuery) {
-      const q = state.moduleSearchQuery.toLowerCase();
-      const matchName = mod.name.toLowerCase().includes(q);
-      const matchDesc = mod.description.toLowerCase().includes(q);
-      const matchCat = (mod.category || '').toLowerCase().includes(q);
-      const matchSrc = (mod.source || '').toLowerCase().includes(q);
-      if (!matchName && !matchDesc && !matchCat && !matchSrc) return false;
-    }
+    if (state.moduleSearchQuery && !matchModuleSearch(mod, state.moduleSearchQuery)) return false;
     return true;
   });
+
+  if (filtered.length === 0) {
+    catalogList.innerHTML = '<div class="text-dim" style="padding:10px; font-size:11px;">NO_MODULES_MATCHED_FILTER.</div>';
+  }
 
   filtered.forEach(mod => {
     const item = document.createElement('div');
@@ -985,15 +1053,13 @@ function renderSpareVault() {
 
     const filtered = window.MODULES.filter(mod => {
       if (!isItemAllowed(mod)) return false;
-      if (state.spareSearchQuery) {
-        const q = state.spareSearchQuery.toLowerCase();
-        const matchName = mod.name.toLowerCase().includes(q);
-        const matchDesc = mod.description.toLowerCase().includes(q);
-        const matchCat = (mod.category || '').toLowerCase().includes(q);
-        if (!matchName && !matchDesc && !matchCat) return false;
-      }
+      if (state.spareSearchQuery && !matchModuleSearch(mod, state.spareSearchQuery)) return false;
       return true;
     });
+
+    if (filtered.length === 0) {
+      selectorList.innerHTML = '<div class="text-dim" style="padding:10px; font-size:11px;">NO_SPARE_MODULES_MATCHED_QUERY.</div>';
+    }
 
     filtered.forEach(mod => {
       const available = state.spareVault[`rank${mod.rank}`] || 0;
