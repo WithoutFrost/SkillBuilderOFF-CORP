@@ -14,23 +14,19 @@ function initDefaultDeck() {
   const saved = localStorage.getItem('sotc_deck_build');
   if (saved) {
     try {
-      state.deck = JSON.parse(saved);
-      return;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        state.deck = parsed;
+        return;
+      }
     } catch (e) {
       console.error('BUFFER_PARSE_ERROR:', e);
     }
   }
 
   const baseSingle = window.SKILL_BASES.find(b => b.id === 'single_strike') || window.SKILL_BASES[0];
-  const baseDual = window.SKILL_BASES.find(b => b.id === 'dual_strike') || window.SKILL_BASES[1];
-  const baseParry = window.SKILL_BASES.find(b => b.id === 'parry') || window.SKILL_BASES[2];
-  const baseHeavy = window.SKILL_BASES.find(b => b.id === 'heavy_guard') || window.SKILL_BASES[3];
-
   state.deck = [
-    createSkillFromBase(baseSingle),
-    createSkillFromBase(baseDual),
-    createSkillFromBase(baseParry),
-    createSkillFromBase(baseHeavy)
+    createSkillFromBase(baseSingle)
   ];
 }
 
