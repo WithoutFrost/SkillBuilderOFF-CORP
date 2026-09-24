@@ -1,4 +1,4 @@
-// Stars of the City TTRPG - Modules Data (Rank 1, 2, 3)
+// Stars of the City TTRPG - Modules Data (Rank 1, 2, 3) with Sources and Homebrew tags
 const MODULES = [
   // ================= RANK 1 MODULES =================
   {
@@ -9,6 +9,8 @@ const MODULES = [
     repeating: true,
     tag: "[Power]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains +1 Base Power.",
     apply: (die) => { die.bonus = (die.bonus || 0) + 1; }
   },
@@ -20,6 +22,8 @@ const MODULES = [
     repeating: true,
     tag: "[Die Size]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die has its size increased by 1 stage (d4->d6, d6->d8, d8->d10, d10->d12. Max d12).",
     apply: (die) => {
       const progression = [4, 6, 8, 10, 12];
@@ -30,6 +34,71 @@ const MODULES = [
     }
   },
   {
+    id: "limited_power_1",
+    name: "Limited Power (+2 to 1 Die)",
+    rank: 1,
+    target: "die",
+    repeating: false,
+    tag: "[Power]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "Can only be applied to skills with [Limit]. One die gains +2 Base Power (does not stack with Powerful).",
+    apply: (die) => { die.bonus = (die.bonus || 0) + 2; }
+  },
+  {
+    id: "limited_power_2",
+    name: "Limited Power (+1 to 2 Dice)",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Power]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "Can only be applied to skills with [Limit]. 2 Dice gain +1 Base Power.",
+    effectText: "2 Dice gain +1 Base Power."
+  },
+  {
+    id: "endless_battle",
+    name: "Endless Battle",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Check]",
+    category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "If any Dice on this skill clash, give all Defensive, non-counter Dice +1 Power, but lose 5 HP.",
+    effectText: "If any Dice clash: give all Defensive non-counter Dice +1 Power, but lose 5 HP."
+  },
+  {
+    id: "comeback_2",
+    name: "Comeback (+2 Final Die)",
+    rank: 1,
+    target: "die",
+    repeating: false,
+    tag: "[Clash Lose]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "One Die besides final gains: '[Clash Lose] Boost the power of final Die by 2.'",
+    effectText: "[Clash Lose] Boost the power of the final Die by 2."
+  },
+  {
+    id: "counterplay",
+    name: "Counterplay",
+    rank: 1,
+    target: "die",
+    repeating: true,
+    tag: "[Check]",
+    category: "Power / Dice",
+    source: "Community: Tsuchigumo",
+    isHomebrew: true,
+    description: "One Die gains: '[Check] When clashing against chosen type, gain {Cost+1} Power.'",
+    effectText: (cost) => `[Check] When clashing against chosen type, gain ${cost + 1} Power.`
+  },
+  {
     id: "forceful",
     name: "Forceful",
     rank: 1,
@@ -37,6 +106,8 @@ const MODULES = [
     repeating: false,
     tag: "[Clash Win]",
     category: "Stagger",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Clash Win] Target loses 2 Stagger Resist.' (If Cost >= 3, applies to 2 Dice).",
     effectText: "[Clash Win] Target loses 2 Stagger Resist."
   },
@@ -49,8 +120,49 @@ const MODULES = [
     repeating: false,
     tag: "[Check]",
     category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Block Die gains: '[Check] Power +2 if this skill intercepted the opposing attack.'",
     effectText: "[Check] Power +2 if this skill intercepted the opposing attack."
+  },
+  {
+    id: "inspirational",
+    name: "Inspirational",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Eminence]",
+    category: "Emotion",
+    source: "Community: Maya",
+    isHomebrew: true,
+    description: "This skill gains: '[Eminence] Whenever you gain Emotion Points from clashing, an ally gains them instead.'",
+    effectText: "[Eminence] When gaining Emotion Points from clashing, an ally gains them instead."
+  },
+  {
+    id: "bypass",
+    name: "Bypass",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Proactive]",
+    category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[Proactive] This attack cannot have its target changed, such as through interception.'",
+    effectText: "[Proactive] Attack cannot have its target changed or intercepted."
+  },
+  {
+    id: "shield_pass",
+    name: "Shield (Pass Defense)",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Defense",
+    source: "Community: Maya",
+    isHomebrew: true,
+    description: "This skill gains: '[After Use] Give all of your saved Defensive Dice to another ally.'",
+    effectText: "[After Use] Give all saved Defensive Dice to another ally."
   },
   {
     id: "cut_through",
@@ -60,8 +172,50 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Remove 1 Protection, 1 Thorns, and 1 Aggro from target' (2 of each if Cost >= 3).",
     effectText: (cost) => `[Hit] Remove ${cost >= 3 ? 2 : 1} Protection, ${cost >= 3 ? 2 : 1} Thorns, and ${cost >= 3 ? 2 : 1} Aggro from target.`
+  },
+  {
+    id: "bonus_doubler",
+    name: "Bonus Doubler",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Eminence]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "Single Offensive die skills only: '[Eminence] Double bonus from Strength.'",
+    effectText: "[Eminence] Double bonus from Strength."
+  },
+  {
+    id: "desperate_struggle",
+    name: "Desperate Struggle",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Eminence]",
+    category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[Eminence] If you would become Staggered while using this skill, delay Stagger until skill ends.'",
+    effectText: "[Eminence] If you would become Staggered, delay that Stagger until the skill ends."
+  },
+  {
+    id: "double_defender",
+    name: "Double Defender",
+    rank: 1,
+    target: "die",
+    filterDice: (d) => d.type === "Defensive" && d.selectedType === "Block",
+    repeating: false,
+    tag: "[Check]",
+    category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "One Block Die gains: '[Check] Double the bonus from Endurance.'",
+    effectText: "[Check] Double the bonus from Endurance."
   },
   {
     id: "frustration",
@@ -71,6 +225,8 @@ const MODULES = [
     repeating: true,
     tag: "[Clash Lose]",
     category: "Emotion",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Clash Lose] Gain 1 Emotion Point.'",
     effectText: "[Clash Lose] Gain 1 Emotion Point."
   },
@@ -82,6 +238,8 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Speed & Haste",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[On Use] Gain {Cost} Haste' (min 1).",
     effectText: (cost) => `[On Use] Gain ${Math.max(1, cost)} Haste.`
   },
@@ -93,8 +251,37 @@ const MODULES = [
     repeating: false,
     tag: "[After Use]",
     category: "Speed & Haste",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[After Use] Gain {Cost-1} Haste' (min 1).",
     effectText: (cost) => `[After Use] Gain ${Math.max(1, cost - 1)} Haste.`
+  },
+  {
+    id: "speed_order",
+    name: "Speed Order",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Speed & Haste",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[On Use] Give another ally 1 Haste (2 if Cost >= 3).'",
+    effectText: (cost) => `[On Use] Give another ally ${cost >= 3 ? 2 : 1} Haste.`
+  },
+  {
+    id: "quick_step",
+    name: "Quick Step",
+    rank: 1,
+    target: "die",
+    filterDice: (d) => d.type === "Defensive" && d.selectedType === "Evade",
+    repeating: false,
+    tag: "[On Evade]",
+    category: "Speed & Haste",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "One Evade Die gains: '[On Evade] Gain 1 Haste (max 2 per scene).'",
+    effectText: "[On Evade] Gain 1 Haste (max 2 per scene)."
   },
   {
     id: "shields_up",
@@ -104,8 +291,23 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[On Use] Gain {Cost} Protection' (min 1).",
     effectText: (cost) => `[On Use] Gain ${Math.max(1, cost)} Protection.`
+  },
+  {
+    id: "protective",
+    name: "Protective",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[On Use] Give 1 Protection to {Cost} allies (min 1).'",
+    effectText: (cost) => `[On Use] Give 1 Protection to ${Math.max(1, cost)} allies.`
   },
   {
     id: "critical_fragility",
@@ -115,6 +317,8 @@ const MODULES = [
     repeating: true,
     tag: "[Crit]",
     category: "Status - Fragile",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Crit] Inflict 1 Fragile' (2 if Die size >= d10).",
     effectText: (cost, die) => `[Crit] Inflict ${die && die.sides >= 10 ? 2 : 1} Fragile.`
   },
@@ -126,8 +330,49 @@ const MODULES = [
     repeating: true,
     tag: "[Crit]",
     category: "Status - Bind",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Crit] Inflict 1 Bind' (2 if Die size >= d10).",
     effectText: (cost, die) => `[Crit] Inflict ${die && die.sides >= 10 ? 2 : 1} Bind.`
+  },
+  {
+    id: "aggravate",
+    name: "Aggravate",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Status - Aggro",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[After Use] Gain {Cost+1} Aggro.'",
+    effectText: (cost) => `[After Use] Gain ${cost + 1} Aggro.`
+  },
+  {
+    id: "cover_me",
+    name: "Cover Me",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Status - Aggro",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[On Use] Give an ally {Cost} Aggro (min 1).'",
+    effectText: (cost) => `[On Use] Give an ally ${Math.max(1, cost)} Aggro.`
+  },
+  {
+    id: "preventative_measures",
+    name: "Preventative Measures",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Status - Safeguard",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[On Use] Gain {Cost} Safeguard (min 1).'",
+    effectText: (cost) => `[On Use] Gain ${Math.max(1, cost)} Safeguard.`
   },
   {
     id: "charging_on_use",
@@ -137,8 +382,24 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Status - Charge",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[On Use] Gain {Cost} Charge' (min 1).",
     effectText: (cost) => `[On Use] Gain ${Math.max(1, cost)} Charge.`
+  },
+  {
+    id: "kinetic_absorption",
+    name: "Kinetic Absorption",
+    rank: 1,
+    target: "die",
+    minCost: 2,
+    repeating: false,
+    tag: "[Clash Win]",
+    category: "Status - Charge",
+    source: "Community: Tsuchigumo",
+    isHomebrew: true,
+    description: "Cost 2+ only. One Die gains: '[Clash Win] Gain 1 Charge (2 if Block Die).'",
+    effectText: (cost, die) => `[Clash Win] Gain ${die && die.selectedType === 'Block' ? 2 : 1} Charge.`
   },
   {
     id: "impact_charger",
@@ -148,6 +409,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Charge",
+    source: "Community: Gabeny",
+    isHomebrew: true,
     description: "One Die gains: '[Hit] Gain 1 Charge.'",
     effectText: "[Hit] Gain 1 Charge."
   },
@@ -161,6 +424,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Charge",
+    source: "Community: Gabeny",
+    isHomebrew: true,
     description: "One Offensive Die gains: '[Hit] Spend up to {Cost} Charge to deal additional damage = 3x Charge spent.'",
     effectText: (cost) => `[Hit] Spend up to ${cost} Charge to deal additional damage = 3x Charge spent.`
   },
@@ -172,6 +437,8 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Status - Poise",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[On Use] Gain {Cost} Poise' (min 1).",
     effectText: (cost) => `[On Use] Gain ${Math.max(1, cost)} Poise.`
   },
@@ -183,8 +450,50 @@ const MODULES = [
     repeating: true,
     tag: "[Crit]",
     category: "Status - Poise",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Crit] Gain X Poise' (1 if <= d8, 2 if >= d10).",
     effectText: (cost, die) => `[Crit] Gain ${die && die.sides >= 10 ? 2 : 1} Poise.`
+  },
+  {
+    id: "seed",
+    name: "Seed",
+    rank: 1,
+    target: "die",
+    filterDice: (d) => d.type === "Defensive",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Status - Thorns",
+    source: "Community: OhBoyCASDidIt",
+    isHomebrew: true,
+    description: "One Defensive Die gains: 'If saved and not used at scene end, gain {Cost} Thorns next scene (min 1).'",
+    effectText: (cost) => `If this saved die is not used at scene end, gain ${Math.max(1, cost)} Thorns next scene.`
+  },
+  {
+    id: "thorny",
+    name: "Thorny",
+    rank: 1,
+    target: "die",
+    repeating: false,
+    tag: "[Clash Lose]",
+    category: "Status - Thorns",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "{Cost} Dice gain: '[Clash Lose] Gain 1 Thorns' (min 1).",
+    effectText: "[Clash Lose] Gain 1 Thorns."
+  },
+  {
+    id: "sudden_growth",
+    name: "Sudden Growth",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[Exhaust]",
+    category: "Status - Thorns",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[Exhaust] Gain 3 Thorns and 1 Protection.'",
+    effectText: "[Exhaust] Gain 3 Thorns and 1 Protection."
   },
   {
     id: "burning_single",
@@ -194,6 +503,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict {Cost+1} Burn.'",
     effectText: (cost) => `[Hit] Inflict ${cost + 1} Burn.`
   },
@@ -205,6 +516,8 @@ const MODULES = [
     repeating: false,
     tag: "[Hit]",
     category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
     description: "All offensive Dice gain: '[Hit] Inflict 1 Burn.'",
     effectText: "All offensive dice gain: [Hit] Inflict 1 Burn."
   },
@@ -216,8 +529,24 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Trigger Blaze on target.'",
     effectText: "[Hit] Trigger Blaze on target."
+  },
+  {
+    id: "flame_step",
+    name: "Flame Step",
+    rank: 1,
+    target: "die",
+    filterDice: (d) => d.type === "Defensive" && d.selectedType === "Evade",
+    repeating: false,
+    tag: "[On Evade]",
+    category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "One Evade Die gains: '[On Evade] Inflict 1 Burn on attacker.'",
+    effectText: "[On Evade] Inflict 1 Burn on attacker."
   },
   {
     id: "bleeding_single",
@@ -227,6 +556,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict {Cost} Bleed' (min 1).",
     effectText: (cost) => `[Hit] Inflict ${Math.max(1, cost)} Bleed.`
   },
@@ -238,6 +569,8 @@ const MODULES = [
     repeating: false,
     tag: "[Hit]",
     category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
     description: "All offensive Dice gain: '[Hit] Inflict 1 Bleed.'",
     effectText: "All offensive dice gain: [Hit] Inflict 1 Bleed."
   },
@@ -249,8 +582,23 @@ const MODULES = [
     repeating: false,
     tag: "[Hit]",
     category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Deal additional damage = Bleed on target.'",
     effectText: "[Hit] Deal additional damage = Bleed on target."
+  },
+  {
+    id: "blood_burst",
+    name: "Blood Burst",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[On Stagger]",
+    category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[On Stagger] Target takes damage = 3x their Bleed.'",
+    effectText: "[On Stagger] Target takes damage = 3x their Bleed."
   },
   {
     id: "tremoring_single",
@@ -260,6 +608,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Tremor",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict {Cost} Tremor' (min 1).",
     effectText: (cost) => `[Hit] Inflict ${Math.max(1, cost)} Tremor.`
   },
@@ -271,6 +621,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Tremor",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4.'",
     effectText: "[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4."
   },
@@ -282,8 +634,36 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Sinking",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict {Cost+1} Sinking.'",
     effectText: (cost) => `[Hit] Inflict ${cost + 1} Sinking.`
+  },
+  {
+    id: "blumenritter",
+    name: "Blumenritter",
+    rank: 1,
+    target: "die",
+    repeating: false,
+    tag: "[Clash Lose]",
+    category: "Status - Thorns",
+    source: "Community: Tsuchigumo",
+    isHomebrew: true,
+    description: "One die gains: '[Clash Lose] Boost Power of next Die = Thorns (max 3, max 4 if Cost >= 2).'",
+    effectText: (cost) => `[Clash Lose] Boost Power of next Die = Thorns (max ${cost >= 2 ? 4 : 3}).`
+  },
+  {
+    id: "flourish",
+    name: "Flourish",
+    rank: 1,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Emotion",
+    source: "Community: Roxas",
+    isHomebrew: true,
+    description: "2+ dice skills only: '[After Use] If all Dice won Clash, gain 1 Emotion Point and recover 3 Stagger Resist.'",
+    effectText: "[After Use] If all Dice won Clash: gain 1 Emotion Point and recover 3 Stagger Resist."
   },
 
   // ================= RANK 2 MODULES =================
@@ -295,6 +675,8 @@ const MODULES = [
     repeating: false,
     tag: "[After Use]",
     category: "Light & Recovery",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[Limit: 5 Uses]' and '[After Use] Regain 1 Light.'",
     effectText: "[Limit: 5 Uses] [After Use] Regain 1 Light."
   },
@@ -306,6 +688,8 @@ const MODULES = [
     repeating: true,
     tag: "[Check]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die (>= d6) reduces size by 1 stage, gains +2 Base Power and rerolls on minimum roll.",
     apply: (die) => {
       const progression = [4, 6, 8, 10, 12];
@@ -323,6 +707,8 @@ const MODULES = [
     repeating: true,
     tag: "[Clash Win]",
     category: "Light & Recovery",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Clash Win] Regain {Cost+2} HP.'",
     effectText: (cost) => `[Clash Win] Regain ${cost + 2} HP.`
   },
@@ -334,6 +720,8 @@ const MODULES = [
     repeating: true,
     tag: "[Clash Win]",
     category: "Stagger",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Clash Win] Regain {Cost+2} Stagger Resistance.'",
     effectText: (cost) => `[Clash Win] Regain ${cost + 2} Stagger Resistance.`
   },
@@ -345,6 +733,8 @@ const MODULES = [
     repeating: false,
     tag: "[Eminence]",
     category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[Eminence] This skill and opposing skill ignore any Power changes except Base Power and ignore [Check] effects.'",
     effectText: "[Eminence] This skill and opposing skill ignore any Power changes except Base Power and ignore [Check] effects."
   },
@@ -356,6 +746,8 @@ const MODULES = [
     repeating: false,
     tag: "[Check]",
     category: "Speed & Haste",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Check] Power +{Cost+1} when used at 8+ Speed.'",
     effectText: (cost) => `[Check] Power +${cost + 1} when used at 8+ Speed.`
   },
@@ -368,6 +760,8 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 2+ only. This skill gains: '[On Use] Gain 1 Strength and 2 Fragile.'",
     effectText: "[On Use] Gain 1 Strength and 2 Fragile."
   },
@@ -380,8 +774,24 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 2+ only. This skill gains: '[On Use] Gain 1 Endurance and 2 Bind.'",
     effectText: "[On Use] Gain 1 Endurance and 2 Bind."
+  },
+  {
+    id: "combat_chains",
+    name: "Combat Chains",
+    rank: 2,
+    target: "die",
+    filterDice: (d) => d.type === "Offensive",
+    repeating: false,
+    tag: "[Clash Win]",
+    category: "Status - Bind",
+    source: "Community: Scorch",
+    isHomebrew: true,
+    description: "One Offensive Die gains: '[Clash Win] Spend 3 Bind on foe to destroy target's next Die.'",
+    effectText: "[Clash Win] Spend 3 Bind on foe to destroy target's next Die."
   },
   {
     id: "shattering",
@@ -391,8 +801,36 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Fragile",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict 1 Fragile' (If Cost >= 3 applies to 2 dice, or if single die inflicts 2).",
     effectText: (cost) => `[Hit] Inflict ${cost >= 3 ? 2 : 1} Fragile.`
+  },
+  {
+    id: "steel_yourself",
+    name: "Steel Yourself",
+    rank: 2,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Defense",
+    source: "Community: Maya",
+    isHomebrew: true,
+    description: "This skill gains: '[On Use] Give 1 Resolve to {Cost} allies (min 1).'",
+    effectText: (cost) => `[On Use] Give 1 Resolve to ${Math.max(1, cost)} allies.`
+  },
+  {
+    id: "sanctuary",
+    name: "Sanctuary",
+    rank: 2,
+    target: "skill",
+    repeating: false,
+    tag: "[On Use]",
+    category: "Status - Safeguard",
+    source: "Community: Scorch",
+    isHomebrew: true,
+    description: "This skill gains: '[On Use] Give another ally {Cost} Safeguard (min 1).'",
+    effectText: (cost) => `[On Use] Give another ally ${Math.max(1, cost)} Safeguard.`
   },
   {
     id: "charge_ripper",
@@ -402,8 +840,50 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Status - Charge",
+    source: "Core Official",
+    isHomebrew: false,
     description: "This skill gains: '[On Use] Spend 5 Charge to give all Dice +2 Power (+4 if single Die).'",
     effectText: "[On Use] Spend 5 Charge to give all Dice +2 Power (+4 if single Die)."
+  },
+  {
+    id: "unbreakable_blockade",
+    name: "Unbreakable Blockade",
+    rank: 2,
+    target: "die",
+    filterDice: (d) => d.type === "Defensive" && d.selectedType === "Block",
+    repeating: false,
+    tag: "[Clash Lose]",
+    category: "Defense",
+    source: "Community: OhBoyCASDidIt",
+    isHomebrew: true,
+    description: "One non-counter Block Die gains: '[Clash Lose] Spend {Cost+2} Poise to recycle this Die.'",
+    effectText: (cost) => `[Clash Lose] Spend ${cost + 2} Poise to recycle this Die.`
+  },
+  {
+    id: "blumenwand",
+    name: "Blumenwand",
+    rank: 2,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Status - Thorns",
+    source: "Community: Tsuchigumo",
+    isHomebrew: true,
+    description: "This Skill gains: '[After Use] You and up to {Cost} allies gain 1 Thorns (+1 extra to self if Cost >= 2).'",
+    effectText: (cost) => `[After Use] You and up to ${cost} allies gain 1 Thorns${cost >= 2 ? ' (+1 extra to self)' : ''}.`
+  },
+  {
+    id: "fruits",
+    name: "Fruits (Heal HP from Thorns)",
+    rank: 2,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Status - Thorns",
+    source: "Community: OhBoyCASDidIt",
+    isHomebrew: true,
+    description: "This skill gains: '[After Use] Spend all Thorns on self; an ally recovers that much HP.'",
+    effectText: "[After Use] Spend all Thorns on self; an ally of your choice regains that much HP."
   },
   {
     id: "inferno",
@@ -413,6 +893,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Trigger Blaze on target, then inflict 2 Burn.'",
     effectText: "[Hit] Trigger Blaze on target, then inflict 2 Burn."
   },
@@ -424,6 +906,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Tremor",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Trigger Tremor Burst, then reduce target's Tremor by 2.'",
     effectText: "[Hit] Trigger Tremor Burst, then reduce target's Tremor by 2."
   },
@@ -435,6 +919,8 @@ const MODULES = [
     repeating: true,
     tag: "[Check]",
     category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Check] Power +{Cost+1} if target has 3+ Bleed.'",
     effectText: (cost) => `[Check] Power +${cost + 1} if target has 3+ Bleed.`
   },
@@ -448,6 +934,8 @@ const MODULES = [
     repeating: false,
     tag: "[Extra Die]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Adds an additional Die to the skill (1d4 for Cost 0, 1d6 for Cost 1, 1d8 for Cost 2, 1d10 for Cost 3+).",
     isExtraDie: true
   },
@@ -460,8 +948,23 @@ const MODULES = [
     repeating: false,
     tag: "[After Use]",
     category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 1+ only. Gains '[After Use] Gain Counter Die' (1d4 for Cost 1, 1d6 for Cost 2, 1d8 for Cost 3+).",
     isCounterDie: true
+  },
+  {
+    id: "gift_of_defense",
+    name: "Gift of Defense",
+    rank: 3,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[After Use] Give Saved Defensive Die to an ally (1d4 Cost 0, 1d6 Cost 1, 1d8 Cost 2, 1d10 Cost 3+).'",
+    effectText: (cost) => `[After Use] Give Saved Defensive Die (1d${cost === 0 ? 4 : cost === 1 ? 6 : cost === 2 ? 8 : 10}) to an ally.`
   },
   {
     id: "crumble",
@@ -471,6 +974,8 @@ const MODULES = [
     repeating: false,
     tag: "[Clash Win]",
     category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Clash Win] You may spend 1 Light to destroy target's next Die.'",
     effectText: "[Clash Win] You may spend 1 Light to destroy target's next Die."
   },
@@ -482,6 +987,8 @@ const MODULES = [
     repeating: false,
     tag: "[Crit]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Crit] Deal +{X} additional damage and stagger (X = max face of die)'.",
     effectText: (cost, die) => `[Crit] Deal +${die ? die.sides : 'X'} additional damage and stagger.`
   },
@@ -494,6 +1001,8 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 2+ only. This skill gains: '[On Use] Gain 1 Strength.'",
     effectText: "[On Use] Gain 1 Strength."
   },
@@ -506,6 +1015,8 @@ const MODULES = [
     repeating: false,
     tag: "[On Use]",
     category: "Defense",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 2+ only. This skill gains: '[On Use] Gain 1 Endurance.'",
     effectText: "[On Use] Gain 1 Endurance."
   },
@@ -517,6 +1028,8 @@ const MODULES = [
     repeating: true,
     tag: "[Hit]",
     category: "Status - Tremor",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Trigger Tremor Burst (without reducing Tremor).'",
     effectText: "[Hit] Trigger Tremor Burst."
   },
@@ -528,6 +1041,8 @@ const MODULES = [
     repeating: false,
     tag: "[Hit]",
     category: "Status - Bleed",
+    source: "Core Official",
+    isHomebrew: false,
     description: "One Die gains: '[Hit] Inflict {Cost} Bleed, 1 Fragile, and 1 Bind' (min 1 Bleed).",
     effectText: (cost) => `[Hit] Inflict ${Math.max(1, cost)} Bleed, 1 Fragile, and 1 Bind.`
   },
@@ -540,8 +1055,76 @@ const MODULES = [
     repeating: false,
     tag: "[Hit]",
     category: "Status - Burn",
+    source: "Core Official",
+    isHomebrew: false,
     description: "Cost 1+ only. One Die gains: '[Hit] Set target's Burn equal to highest among combatants.'",
     effectText: "[Hit] Set target's Burn equal to highest among combatants."
+  },
+  {
+    id: "deracinee",
+    name: "Déracinée",
+    rank: 3,
+    target: "skill",
+    repeating: false,
+    tag: "[Exhaust]",
+    category: "Status - Thorns",
+    source: "Community: Raptordentue",
+    isHomebrew: true,
+    description: "This skill gains: '[Exhaust] Consume all Thorns on self, distribute Bleed = 2x Thorns evenly amongst all enemies.'",
+    effectText: "[Exhaust] Consume all Thorns on self, distribute Bleed = 2x Thorns evenly amongst all enemies."
+  },
+  {
+    id: "defibrillator",
+    name: "Defibrillator",
+    rank: 3,
+    target: "skill",
+    repeating: false,
+    tag: "[After Use]",
+    category: "Light & Recovery",
+    source: "Community: Roxas",
+    isHomebrew: true,
+    description: "This skill gains: '[After Use] Spend 10 Emotion Points/Charge to trigger Revival on one defeated ally.'",
+    effectText: "[After Use] Spend 10 Emotion Points/Charge to trigger Revival on one defeated ally (once per combat)."
+  },
+  {
+    id: "cleave_through_space",
+    name: "Cleave Through Space",
+    rank: 3,
+    target: "die",
+    filterDice: (d) => d.type === "Offensive" && d.selectedType === "Slash",
+    repeating: false,
+    tag: "[Crit]",
+    category: "Utility",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "One Slash Die gains: '[Crit] Remove all Saved Dice, halve target's Aggro, Protection, Thorns, and Safeguard.'",
+    effectText: "[Crit] Remove all Saved Dice from target, and halve target's Aggro, Protection, Thorns, and Safeguard."
+  },
+  {
+    id: "pierce_through_all",
+    name: "Pierce Through All",
+    rank: 3,
+    target: "skill",
+    repeating: false,
+    tag: "[Eminence]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[Eminence] All Pierce Dice treat affinities as 0 and gain +1 Base Power.'",
+    effectText: "[Eminence] All Pierce Dice treat affinities as 0 and gain +1 Base Power."
+  },
+  {
+    id: "bash_through_bodies",
+    name: "Bash Through Bodies",
+    rank: 3,
+    target: "skill",
+    repeating: false,
+    tag: "[Eminence]",
+    category: "Power / Dice",
+    source: "Core Official",
+    isHomebrew: false,
+    description: "This skill gains: '[Eminence] On hit with Blunt die, deal Blunt damage and stagger to another enemy = half total Power.'",
+    effectText: "[Eminence] On Blunt hit, deal Blunt Damage and Stagger to another enemy = half that Die's total Power."
   }
 ];
 

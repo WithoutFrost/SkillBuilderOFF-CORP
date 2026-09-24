@@ -4,9 +4,18 @@
 const state = {
   activeSkillIndex: 0,
   deck: [],
+  spareVault: {
+    rank1: 0,
+    rank2: 0,
+    rank3: 0,
+    unassigned: [] // Array of specific unassigned module definitions or counts
+  },
   costFilter: 'all',
   moduleRankFilter: 'all',
   moduleSearchQuery: '',
+  glossaryCategory: 'all',
+  glossarySearchQuery: '',
+  enableHomebrew: false, // Default: OFF as requested
   activeTab: 'tab-base'
 };
 
@@ -17,17 +26,44 @@ function initDefaultDeck() {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
         state.deck = parsed;
-        return;
       }
     } catch (e) {
       console.error('BUFFER_PARSE_ERROR:', e);
     }
   }
 
-  const baseSingle = window.SKILL_BASES.find(b => b.id === 'single_strike') || window.SKILL_BASES[0];
-  state.deck = [
-    createSkillFromBase(baseSingle)
-  ];
+  if (!state.deck || state.deck.length === 0) {
+    const baseSingle = window.SKILL_BASES.find(b => b.id === 'single_strike') || window.SKILL_BASES[0];
+    state.deck = [
+      createSkillFromBase(baseSingle)
+    ];
+  }
+
+  // Load spare vault state
+  const savedVault = localStorage.getItem('sotc_spare_vault');
+  if (savedVault) {
+    try {
+      state.spareVault = JSON.parse(savedVault);
+    } catch (e) {
+      console.error('VAULT_PARSE_ERROR:', e);
+    }
+  }
+
+  // Load HB toggle state
+  const savedHb = localStorage.getItem('sotc_hb_enabled');
+  if (savedHb !== null) {
+    state.enableHomebrew = (savedHb === 'true');
+  }
+}
+
+function persistState() {
+  localStorage.setItem('sotc_deck_build', JSON.stringify(state.deck));
+  localStorage.setItem('sotc_spare_vault', JSON.stringify(state.spareVault));
+  localStorage.setItem('sotc_hb_enabled', state.enableHomebrew);
+}
+
+function persistDeck() {
+  persistState();
 }
 
 function createSkillFromBase(base) {
@@ -39,6 +75,8 @@ function createSkillFromBase(base) {
     cost: base.cost,
     rarity: 'Standard',
     customizableCost: base.customizableCost || false,
+    source: base.credit ? `Community: ${base.credit}` : 'Core Official',
+    isHomebrew: base.category === 'Community' || !!base.credit,
     dice: base.dice.map((d, index) => ({
       id: `die_${index + 1}`,
       type: d.type,
@@ -64,6 +102,8 @@ function createSkillFromUnique(unique) {
     cost: unique.cost,
     rarity: unique.rarity || 'Unique',
     archetype: unique.archetype || '',
+    source: 'Core Official',
+    isHomebrew: false,
     dice: unique.dice.map((d, index) => ({
       id: `die_${index + 1}`,
       type: d.type,
@@ -85,10 +125,6 @@ function getActiveSkill() {
   return state.deck[state.activeSkillIndex] || state.deck[0];
 }
 
-function persistDeck() {
-  localStorage.setItem('sotc_deck_build', JSON.stringify(state.deck));
-}
-
 // ================= RENDER LOGIC =================
 
 function renderDeckList() {
@@ -105,11 +141,13 @@ function renderDeckList() {
     const totalModules = (skill.installedModules?.length || 0) + 
       skill.dice.reduce((acc, d) => acc + (d.installedModules?.length || 0), 0);
 
+    const sourceBadge = skill.isHomebrew ? '<span class="badge-source badge-source-hb">[HB]</span>' : '';
+
     card.innerHTML = `
       <div class="deck-item-left">
         <span class="deck-item-cost">${skill.cost}L</span>
         <div>
-          <div class="deck-item-title">${skill.name.toUpperCase()}</div>
+          <div class="deck-item-title">${skill.name.toUpperCase()} ${sourceBadge}</div>
           <div class="deck-item-info">${skill.dice.length}DICE // ${totalModules}MODS ${skill.isUnique ? '// [UNQ]' : ''}</div>
         </div>
       </div>
@@ -187,6 +225,10 @@ function renderBaseCatalog() {
   const currentSkill = getActiveSkill();
 
   const filtered = window.SKILL_BASES.filter(base => {
+    // Check Homebrew filter
+    const isHb = base.category === 'Community' || !!base.credit;
+    if (isHb && !state.enableHomebrew) return false;
+
     if (state.costFilter === 'all') return true;
     return base.cost === parseInt(state.costFilter);
   });
@@ -201,9 +243,12 @@ function renderBaseCatalog() {
       return `<span class="term-badge">[${d.defaultType || d.type} ${sides}]</span>`;
     }).join(' ');
 
+    const sourceText = base.credit ? `[HB: ${base.credit}]` : '[OFFICIAL]';
+    const sourceClass = base.credit ? 'badge-source-hb' : 'badge-source-official';
+
     card.innerHTML = `
       <div class="base-card-top">
-        <span class="base-card-name">${base.name.toUpperCase()}</span>
+        <span class="base-card-name">${base.name.toUpperCase()} <span class="badge-source ${sourceClass}">${sourceText}</span></span>
         <span class="deck-item-cost">${base.cost}L</span>
       </div>
       <div class="base-card-dice-preview">${diceBadges || '<span class="text-dim">NO_DICE</span>'}</div>
@@ -288,7 +333,7 @@ function renderUniqueSkills() {
 
     card.innerHTML = `
       <div class="base-card-top">
-        <span class="base-card-name" style="color:var(--term-amber);">${unique.name.toUpperCase()}</span>
+        <span class="base-card-name" style="color:var(--term-amber);">${unique.name.toUpperCase()} <span class="badge-source badge-source-official">[OFFICIAL]</span></span>
         <span class="deck-item-cost">${unique.cost}L</span>
       </div>
       <div class="base-card-dice-preview">${diceBadges}</div>
@@ -319,13 +364,17 @@ function renderModuleCatalog() {
   if (!skill) return;
 
   const filtered = window.MODULES.filter(mod => {
+    // Check Homebrew filter
+    if (mod.isHomebrew && !state.enableHomebrew) return false;
+
     if (state.moduleRankFilter !== 'all' && mod.rank !== parseInt(state.moduleRankFilter)) return false;
     if (state.moduleSearchQuery) {
       const q = state.moduleSearchQuery.toLowerCase();
       const matchName = mod.name.toLowerCase().includes(q);
       const matchDesc = mod.description.toLowerCase().includes(q);
       const matchCat = (mod.category || '').toLowerCase().includes(q);
-      if (!matchName && !matchDesc && !matchCat) return false;
+      const matchSrc = (mod.source || '').toLowerCase().includes(q);
+      if (!matchName && !matchDesc && !matchCat && !matchSrc) return false;
     }
     return true;
   });
@@ -334,22 +383,37 @@ function renderModuleCatalog() {
     const item = document.createElement('div');
     item.className = 'module-item';
 
-    let attachHtml = `<button class="term-btn term-btn-primary module-attach-btn" data-mod-id="${mod.id}" style="padding:2px 8px; font-size:11px;">[+ATTACH]</button>`;
-    if (mod.target === 'die' && skill.dice.length > 0) {
-      let dieOptions = skill.dice.map((d, i) => `<option value="${i}">DIE_${i+1} (${d.selectedType} 1d${d.sides})</option>`).join('');
-      attachHtml = `
-        <div style="display:flex; gap:4px; align-items:center;">
-          <select class="term-input select-mod-die" style="padding:2px 4px; font-size:10px; width:auto;">
-            ${dieOptions}
-          </select>
-          <button class="term-btn term-btn-primary module-attach-btn" data-mod-id="${mod.id}" style="padding:2px 8px; font-size:11px;">[+ATTACH]</button>
-        </div>
-      `;
+    let attachHtml = '';
+    if (mod.target === 'die') {
+      let optionsHtml = '';
+      skill.dice.forEach((d, idx) => {
+        const canAttach = !mod.filterDice || mod.filterDice(d);
+        if (canAttach) {
+          optionsHtml += `<option value="${idx}">DIE_${idx + 1} [${d.selectedType}]</option>`;
+        }
+      });
+      if (optionsHtml) {
+        attachHtml = `
+          <div style="display:flex; gap:4px; align-items:center;">
+            <select class="term-input select-mod-die" style="padding:2px 4px; font-size:10px; width:auto;">
+              ${optionsHtml}
+            </select>
+            <button class="term-btn term-btn-primary module-attach-btn" style="padding:2px 8px; font-size:10px;">[MOUNT]</button>
+          </div>
+        `;
+      } else {
+        attachHtml = `<span class="text-dim" style="font-size:10px;">[INCOMPATIBLE_DICE]</span>`;
+      }
+    } else {
+      attachHtml = `<button class="term-btn term-btn-primary module-attach-btn" style="padding:2px 8px; font-size:10px;">[MOUNT_PAGE]</button>`;
     }
+
+    const sourceClass = mod.isHomebrew ? 'badge-source-hb' : 'badge-source-official';
+    const sourceLabel = mod.isHomebrew ? `[HB: ${mod.source.replace('Community: ', '')}]` : '[OFFICIAL]';
 
     item.innerHTML = `
       <div class="module-item-header">
-        <span class="module-item-title">${mod.name.toUpperCase()}</span>
+        <span class="module-item-title">${mod.name.toUpperCase()} <span class="badge-source ${sourceClass}">${sourceLabel}</span></span>
         <span class="term-badge">RANK_${mod.rank}</span>
       </div>
       <p class="module-item-desc">${mod.description}</p>
@@ -360,11 +424,13 @@ function renderModuleCatalog() {
     `;
 
     const attachBtn = item.querySelector('.module-attach-btn');
-    attachBtn.addEventListener('click', () => {
-      const dieSelect = item.querySelector('.select-mod-die');
-      const dieIndex = dieSelect ? parseInt(dieSelect.value) : null;
-      installModuleToSkill(skill, mod, dieIndex);
-    });
+    if (attachBtn) {
+      attachBtn.addEventListener('click', () => {
+        const dieSelect = item.querySelector('.select-mod-die');
+        const dieIndex = dieSelect ? parseInt(dieSelect.value) : null;
+        installModuleToSkill(skill, mod, dieIndex);
+      });
+    }
 
     catalogList.appendChild(item);
   });
@@ -376,9 +442,10 @@ function renderModuleCatalog() {
     totalInstalled++;
     const row = document.createElement('div');
     row.className = 'module-item';
+    const sourceTag = mod.isHomebrew ? '<span class="badge-source badge-source-hb">[HB]</span>' : '';
     row.innerHTML = `
       <div class="module-item-header">
-        <span class="module-item-title">${mod.name.toUpperCase()}</span>
+        <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag}</span>
         <span class="term-badge" style="border-color:var(--term-amber); color:var(--term-amber)">RANK_${mod.rank} // GLOBAL</span>
       </div>
       <p class="module-item-desc">${mod.effectText}</p>
@@ -399,9 +466,10 @@ function renderModuleCatalog() {
       totalInstalled++;
       const row = document.createElement('div');
       row.className = 'module-item';
+      const sourceTag = mod.isHomebrew ? '<span class="badge-source badge-source-hb">[HB]</span>' : '';
       row.innerHTML = `
         <div class="module-item-header">
-          <span class="module-item-title">${mod.name.toUpperCase()}</span>
+          <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag}</span>
           <span class="term-badge">RANK_${mod.rank} // DIE_${dieIdx + 1}</span>
         </div>
         <p class="module-item-desc">${mod.effectText || mod.name}</p>
@@ -510,7 +578,7 @@ function installModuleToSkill(skill, mod, dieIndex) {
     return;
   }
 
-  // Strict Tag Collision Prevention (Each Die or Skill can only have one of each Tag)
+  // Strict Tag Collision Prevention
   if (mod.tag && !['[Power]', '[Die Size]', '[Extra Die]'].includes(mod.tag)) {
     if (mod.target === 'die' && dieIndex !== null && skill.dice[dieIndex]) {
       const targetDie = skill.dice[dieIndex];
@@ -553,6 +621,8 @@ function installModuleToSkill(skill, mod, dieIndex) {
       name: mod.name,
       rank: mod.rank,
       tag: mod.tag,
+      isHomebrew: mod.isHomebrew || false,
+      source: mod.source || 'Core Official',
       effectText: effect
     });
   } else {
@@ -563,6 +633,8 @@ function installModuleToSkill(skill, mod, dieIndex) {
       name: mod.name,
       rank: mod.rank,
       tag: mod.tag,
+      isHomebrew: mod.isHomebrew || false,
+      source: mod.source || 'Core Official',
       effectText: effect
     });
   }
@@ -596,25 +668,6 @@ function validateSkill(skill) {
       text: `RANK_3_CAP_VIOLATION: ${rank3Count} modules attached (MAX_PERMITTED: 2).`
     });
   }
-
-  // Tag Collision Check on Dice & Global
-  skill.dice.forEach((die, idx) => {
-    const rawTags = (die.installedModules || []).map(m => m.tag).filter(Boolean);
-    const tagCounts = {};
-    rawTags.forEach(t => {
-      if (!['[Power]', '[Die Size]', '[Extra Die]'].includes(t)) {
-        tagCounts[t] = (tagCounts[t] || 0) + 1;
-      }
-    });
-    Object.keys(tagCounts).forEach(tag => {
-      if (tagCounts[tag] > 1) {
-        issues.push({
-          type: 'error',
-          text: `TAG_COLLISION_ON_DIE_${idx + 1}: Multiple ${tag} tags detected. Each die can only have one of each tag.`
-        });
-      }
-    });
-  });
 
   const installedIds = [
     ...(skill.installedModules || []).map(m => m.id),
@@ -657,6 +710,68 @@ function validateSkill(skill) {
   }
 
   return issues;
+}
+
+// Render dynamic realtime annotations for the active card
+function renderRealtimeAnnotations(skill) {
+  const container = document.getElementById('card-annotations-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!skill) {
+    container.innerHTML = '<span class="text-dim">NO_ACTIVE_CARD_SELECTED.</span>';
+    return;
+  }
+
+  const allEffectTexts = [
+    ...(skill.globalTags || []),
+    ...(skill.installedModules || []).map(m => m.effectText || m.name),
+    ...skill.dice.flatMap(d => [
+      ...(d.tags || []),
+      ...(d.installedModules || []).map(m => m.effectText || m.name)
+    ])
+  ].filter(Boolean);
+
+  const matchedEntries = [];
+  const addedNames = new Set();
+
+  const scanList = [
+    ...(window.GLOSSARY.buffs || []),
+    ...(window.GLOSSARY.debuffs || []),
+    ...(window.GLOSSARY.boons || []),
+    ...(window.GLOSSARY.ailments || []),
+    ...(window.GLOSSARY.triggers || []),
+    ...(window.GLOSSARY.tags || []),
+    ...(window.GLOSSARY.specialStatuses || [])
+  ];
+
+  scanList.forEach(entry => {
+    const cleanName = entry.name.replace(/[\[\]]/g, '');
+    const regex = new RegExp(`\\b${cleanName}\\b|\\[${cleanName}\\]`, 'i');
+    const isPresent = allEffectTexts.some(txt => regex.test(txt));
+    if (isPresent && !addedNames.has(entry.name)) {
+      addedNames.add(entry.name);
+      matchedEntries.push(entry);
+    }
+  });
+
+  if (matchedEntries.length === 0) {
+    container.innerHTML = '<span class="text-dim">PAGE_HAS_NO_DETECTED_STATUSES_OR_TRIGGERS.</span>';
+    return;
+  }
+
+  matchedEntries.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'annotation-card';
+    card.innerHTML = `
+      <div class="annotation-title">
+        <span>${item.name.toUpperCase()}</span>
+        <span class="term-badge">${item.type.toUpperCase()}</span>
+      </div>
+      <div class="annotation-desc">${item.desc}</div>
+    `;
+    container.appendChild(card);
+  });
 }
 
 function renderCardPreview() {
@@ -754,6 +869,128 @@ function renderCardPreview() {
   const totalInstalled = (skill.installedModules?.length || 0) + 
     skill.dice.reduce((acc, d) => acc + (d.installedModules?.length || 0), 0);
   document.getElementById('card-render-modules-badge').textContent = `${totalInstalled} MODS`;
+
+  renderRealtimeAnnotations(skill);
+}
+
+// Render Spare Modules Vault
+function renderSpareVault() {
+  document.getElementById('spare-count-r1').textContent = state.spareVault.rank1 || 0;
+  document.getElementById('spare-count-r2').textContent = state.spareVault.rank2 || 0;
+  document.getElementById('spare-count-r3').textContent = state.spareVault.rank3 || 0;
+
+  // Calculate total active deck modules
+  let deckActiveMods = 0;
+  state.deck.forEach(s => {
+    deckActiveMods += (s.installedModules?.length || 0) +
+      s.dice.reduce((acc, d) => acc + (d.installedModules?.length || 0), 0);
+  });
+  document.getElementById('deck-total-active-mods').textContent = `${deckActiveMods} ATTACHED`;
+
+  const unassignedList = document.getElementById('spare-unassigned-list');
+  unassignedList.innerHTML = '';
+
+  const totalSpares = (state.spareVault.rank1 || 0) + (state.spareVault.rank2 || 0) + (state.spareVault.rank3 || 0);
+  document.getElementById('unassigned-spare-count').textContent = totalSpares;
+
+  if (totalSpares === 0) {
+    unassignedList.innerHTML = '<p class="text-dim" style="padding:8px;">VAULT_IS_EMPTY. USE BUTTONS ABOVE TO ACCUMULATE SPARE MODULES FROM LEVELING OR INTELLECT.</p>';
+  } else {
+    for (let r = 1; r <= 3; r++) {
+      const count = state.spareVault[`rank${r}`] || 0;
+      if (count > 0) {
+        const item = document.createElement('div');
+        item.className = 'module-item';
+        item.innerHTML = `
+          <div class="module-item-header">
+            <span class="module-item-title">SPARE MODULES [RANK ${r}]</span>
+            <span class="term-badge">COUNT: ${count}</span>
+          </div>
+          <p class="module-item-desc">Disponíveis para anexar livremente em qualquer carta de combate do buffer.</p>
+          <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:4px;">
+            <button class="term-btn term-btn-danger" style="padding:1px 6px; font-size:10px;" data-remove-spare="${r}">[ - 1 ]</button>
+          </div>
+        `;
+        item.querySelector('[data-remove-spare]').addEventListener('click', () => {
+          if (state.spareVault[`rank${r}`] > 0) {
+            state.spareVault[`rank${r}`]--;
+            persistState();
+            renderSpareVault();
+          }
+        });
+        unassignedList.appendChild(item);
+      }
+    }
+  }
+
+  // Render Deck breakdown
+  const breakdownList = document.getElementById('deck-all-modules-breakdown');
+  breakdownList.innerHTML = '';
+
+  state.deck.forEach((s, sIdx) => {
+    const pageMods = [
+      ...(s.installedModules || []).map(m => ({ ...m, scope: 'GLOBAL' })),
+      ...s.dice.flatMap((d, di) => (d.installedModules || []).map(m => ({ ...m, scope: `DIE_${di + 1}` })))
+    ];
+
+    const group = document.createElement('div');
+    group.className = 'module-item';
+    group.style.marginBottom = '8px';
+
+    const modListHtml = pageMods.length > 0
+      ? pageMods.map(m => `<div>- [R${m.rank}] <strong>${m.name}</strong> (${m.scope}): <span class="text-dim">${m.effectText || ''}</span></div>`).join('')
+      : '<span class="text-dim">NO_MODULES_INSTALLED</span>';
+
+    group.innerHTML = `
+      <div class="module-item-header">
+        <span class="module-item-title">[${sIdx + 1}] ${s.name.toUpperCase()} (${s.cost}L)</span>
+        <span class="term-badge">${pageMods.length} MODS</span>
+      </div>
+      <div style="font-size:11px; margin-top:4px; line-height:1.4;">${modListHtml}</div>
+    `;
+    breakdownList.appendChild(group);
+  });
+}
+
+// Render System Glossary & Rule Reference
+function renderGlossary() {
+  const grid = document.getElementById('glossary-catalog-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  let entries = [];
+  const cat = state.glossaryCategory;
+
+  if (cat === 'all') {
+    Object.keys(window.GLOSSARY).forEach(key => {
+      entries = entries.concat(window.GLOSSARY[key]);
+    });
+  } else if (window.GLOSSARY[cat]) {
+    entries = [...window.GLOSSARY[cat]];
+  }
+
+  if (state.glossarySearchQuery) {
+    const q = state.glossarySearchQuery.toLowerCase();
+    entries = entries.filter(e => e.name.toLowerCase().includes(q) || e.desc.toLowerCase().includes(q) || e.type.toLowerCase().includes(q));
+  }
+
+  if (entries.length === 0) {
+    grid.innerHTML = '<p class="text-dim" style="padding:10px;">NO_GLOSSARY_ENTRIES_MATCHED_QUERY.</p>';
+    return;
+  }
+
+  entries.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'glossary-card';
+    card.innerHTML = `
+      <div class="glossary-card-header">
+        <span class="glossary-term-name">${item.name}</span>
+        <span class="term-badge">${item.type.toUpperCase()}</span>
+      </div>
+      <p class="text-dim" style="font-size:11px; line-height:1.4;">${item.desc}</p>
+    `;
+    grid.appendChild(card);
+  });
 }
 
 function rollActiveSkill() {
@@ -784,9 +1021,14 @@ function rollActiveSkill() {
 
   const summary = document.createElement('div');
   summary.style.marginTop = '4px';
-  summary.style.paddingTop = '4px';
   summary.style.borderTop = '1px solid var(--term-border)';
-  summary.innerHTML = `<span style="color:var(--term-amber);">ACCUMULATED_POWER: <strong>${totalRoll}</strong></span>`;
+  summary.style.paddingTop = '4px';
+  summary.style.display = 'flex';
+  summary.style.justifyContent = 'space-between';
+  summary.innerHTML = `
+    <span>&gt; BARRAGE_TOTAL:</span>
+    <strong style="color:var(--term-green); font-size:13px;">${totalRoll} PWR</strong>
+  `;
   resultsArea.appendChild(summary);
 }
 
@@ -826,7 +1068,11 @@ function exportDeckMarkdown() {
 }
 
 function exportDeckJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.deck, null, 2));
+  const data = {
+    deck: state.deck,
+    spareVault: state.spareVault
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
   downloadAnchor.setAttribute("download", `sotc_deck_${Date.now()}.json`);
@@ -846,10 +1092,14 @@ function importDeckJSON(e) {
       if (Array.isArray(imported)) {
         state.deck = imported;
         state.activeSkillIndex = 0;
-        persistDeck();
-        renderAll();
-        showToast('BUFFER_RELOADED_FROM_FILE.');
+      } else if (imported.deck && Array.isArray(imported.deck)) {
+        state.deck = imported.deck;
+        if (imported.spareVault) state.spareVault = imported.spareVault;
+        state.activeSkillIndex = 0;
       }
+      persistDeck();
+      renderAll();
+      showToast('BUFFER_RELOADED_FROM_FILE.');
     } catch (err) {
       showToast('FILE_READ_EXCEPTION.');
     }
@@ -863,6 +1113,8 @@ function renderAll() {
   renderDiceCustomizer();
   renderUniqueSkills();
   renderModuleCatalog();
+  renderSpareVault();
+  renderGlossary();
   renderCardPreview();
 }
 
@@ -910,6 +1162,59 @@ function setupEvents() {
     renderModuleCatalog();
   });
 
+  // Glossary filters
+  document.querySelectorAll('[data-glossary-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-glossary-cat]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.glossaryCategory = btn.getAttribute('data-glossary-cat');
+      renderGlossary();
+    });
+  });
+
+  const glossSearch = document.getElementById('input-glossary-search');
+  if (glossSearch) {
+    glossSearch.addEventListener('input', (e) => {
+      state.glossarySearchQuery = e.target.value;
+      renderGlossary();
+    });
+  }
+
+  // Spare vault buttons
+  document.getElementById('btn-add-spare-r1').addEventListener('click', () => {
+    state.spareVault.rank1 = (state.spareVault.rank1 || 0) + 1;
+    persistState();
+    renderSpareVault();
+    showToast('SPARE_MODULE_ADDED: RANK 1');
+  });
+
+  document.getElementById('btn-add-spare-r2').addEventListener('click', () => {
+    state.spareVault.rank2 = (state.spareVault.rank2 || 0) + 1;
+    persistState();
+    renderSpareVault();
+    showToast('SPARE_MODULE_ADDED: RANK 2');
+  });
+
+  document.getElementById('btn-add-spare-r3').addEventListener('click', () => {
+    state.spareVault.rank3 = (state.spareVault.rank3 || 0) + 1;
+    persistState();
+    renderSpareVault();
+    showToast('SPARE_MODULE_ADDED: RANK 3');
+  });
+
+  // Homebrew Toggle Button
+  const btnToggleHb = document.getElementById('btn-toggle-hb');
+  if (btnToggleHb) {
+    btnToggleHb.textContent = state.enableHomebrew ? '[ HB_CONTENT: ON ]' : '[ HB_CONTENT: OFF ]';
+    btnToggleHb.addEventListener('click', () => {
+      state.enableHomebrew = !state.enableHomebrew;
+      btnToggleHb.textContent = state.enableHomebrew ? '[ HB_CONTENT: ON ]' : '[ HB_CONTENT: OFF ]';
+      persistState();
+      renderAll();
+      showToast(state.enableHomebrew ? 'HOMEBREW_CONTENT_ACTIVATED' : 'HOMEBREW_CONTENT_DEACTIVATED');
+    });
+  }
+
   document.getElementById('btn-add-new-skill').addEventListener('click', () => {
     if (state.deck.length >= 6) {
       showToast('BUFFER_CAP_REACHED: MAX 6 PAGES.');
@@ -926,6 +1231,8 @@ function setupEvents() {
   document.getElementById('btn-clear-deck').addEventListener('click', () => {
     if (confirm('SYS_CONFIRM: RESET COMBAT BUFFER TO DEFAULT CONFIGURATION?')) {
       localStorage.removeItem('sotc_deck_build');
+      localStorage.removeItem('sotc_spare_vault');
+      state.spareVault = { rank1: 0, rank2: 0, rank3: 0, unassigned: [] };
       initDefaultDeck();
       state.activeSkillIndex = 0;
       renderAll();
