@@ -937,6 +937,21 @@ function setupEvents() {
     }
   });
 
+  const btnToggleCrt = document.getElementById('btn-toggle-crt');
+  if (btnToggleCrt) {
+    const crtSaved = localStorage.getItem('sotc_crt_enabled');
+    if (crtSaved === 'false') {
+      document.body.classList.add('crt-disabled');
+      btnToggleCrt.textContent = '[ CRT_FX: OFF ]';
+    }
+    btnToggleCrt.addEventListener('click', () => {
+      const isDisabled = document.body.classList.toggle('crt-disabled');
+      btnToggleCrt.textContent = isDisabled ? '[ CRT_FX: OFF ]' : '[ CRT_FX: ON ]';
+      localStorage.setItem('sotc_crt_enabled', !isDisabled);
+      showToast(isDisabled ? 'CRT_FILTER_DISABLED' : 'CRT_FILTER_ENABLED');
+    });
+  }
+
   document.getElementById('btn-roll-active-skill').addEventListener('click', rollActiveSkill);
   document.getElementById('btn-export-markdown').addEventListener('click', exportDeckMarkdown);
   document.getElementById('btn-copy-card-markdown').addEventListener('click', exportDeckMarkdown);

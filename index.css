@@ -75,6 +75,15 @@ body.crt-screen {
   z-index: 998;
 }
 
+/* CRT Disabled State */
+body.crt-disabled {
+  text-shadow: none !important;
+}
+body.crt-disabled .crt-scanlines,
+body.crt-disabled .crt-vignette {
+  display: none !important;
+}
+
 /* Terminal Header */
 .term-header {
   border-bottom: 2px solid var(--term-border-bright);
