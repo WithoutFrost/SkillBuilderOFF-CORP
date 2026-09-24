@@ -819,11 +819,24 @@ function renderCardPreview() {
     skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 3).length, 0);
   const totalMod = r1Count + r2Count + r3Count;
 
+  const r1Innate = Math.min(3, (skill.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length +
+    skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length, 0));
+  const r2Innate = Math.min(1, (skill.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length +
+    skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length, 0));
+  const totalInnate = r1Innate + r2Innate;
+
+  const totalSpareAttached = (skill.installedModules || []).filter(m => m.isSpare).length +
+    skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.isSpare).length, 0);
+
   const badgeModEl = document.getElementById('badge-module-count');
   if (skill.isUnique) {
-    badgeModEl.textContent = `MODS: ${totalMod} (UNIQUE_PRESET)`;
+    badgeModEl.textContent = `MODS: ${totalMod} [PRESET${totalSpareAttached > 0 ? ` + ${totalSpareAttached} SPARES` : ''}]`;
   } else {
-    badgeModEl.textContent = `MODS: ${totalMod} / 4 [R1: ${r1Count}/3 | R2: ${r2Count}/1${r3Count ? ` | R3: ${r3Count}` : ''}]`;
+    if (totalSpareAttached > 0) {
+      badgeModEl.textContent = `MODS: ${totalMod} [INATOS: ${totalInnate}/4 | SPARES: +${totalSpareAttached}]`;
+    } else {
+      badgeModEl.textContent = `MODS: ${totalMod}/4 [R1: ${r1Count}/3 | R2: ${r2Count}/1${r3Count ? ` | R3: ${r3Count}` : ''}]`;
+    }
   }
 
   const issues = validateSkill(skill);
