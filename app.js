@@ -585,6 +585,29 @@ function installModuleToSkill(skill, mod, dieIndex, isSpare = false) {
     }
   }
 
+  if (!isSpare && !skill.isUnique) {
+    if (mod.rank === 3) {
+      showToast('RANK_3_SPARE_ONLY: Módulos de Rank 3 só podem ser equipados como Spare Modules (aba SPARE_MODULES_VAULT).');
+      return;
+    }
+    if (mod.rank === 1) {
+      const currentR1Innate = (skill.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length +
+        skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length, 0);
+      if (currentR1Innate >= 3) {
+        showToast('INNATE_QUOTA_FULL: Limite inato de Rank 1 (3/3) atingido. Módulos adicionais devem ser equipados na aba SPARE_MODULES_VAULT.');
+        return;
+      }
+    }
+    if (mod.rank === 2) {
+      const currentR2Innate = (skill.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length +
+        skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length, 0);
+      if (currentR2Innate >= 1) {
+        showToast('INNATE_QUOTA_FULL: Limite inato de Rank 2 (1/1) atingido. Módulos adicionais devem ser equipados na aba SPARE_MODULES_VAULT.');
+        return;
+      }
+    }
+  }
+
   const rank3Count = (skill.installedModules || []).filter(m => m.rank === 3).length +
     skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 3).length, 0);
 
@@ -722,15 +745,36 @@ function validateSkill(skill) {
   });
 
   if (!skill.isUnique) {
-    const r1 = (skill.installedModules || []).filter(m => m.rank === 1).length +
-      skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 1).length, 0);
-    const r2 = (skill.installedModules || []).filter(m => m.rank === 2).length +
-      skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 2).length, 0);
-    
-    if (r1 < 3 || r2 < 1) {
+    const r1Innate = (skill.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length +
+      skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 1 && !m.isSpare).length, 0);
+    const r2Innate = (skill.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length +
+      skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 2 && !m.isSpare).length, 0);
+    const r3Innate = (skill.installedModules || []).filter(m => m.rank === 3 && !m.isSpare).length +
+      skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 3 && !m.isSpare).length, 0);
+
+    if (r1Innate > 3) {
+      issues.push({
+        type: 'error',
+        text: `INNATE_QUOTA_EXCEEDED: ${r1Innate}/3 Rank 1 inatos. Módulos adicionais precisam ser instalados como Spare Modules no SPARE_MODULES_VAULT.`
+      });
+    }
+    if (r2Innate > 1) {
+      issues.push({
+        type: 'error',
+        text: `INNATE_QUOTA_EXCEEDED: ${r2Innate}/1 Rank 2 inatos. Módulos adicionais precisam ser instalados como Spare Modules no SPARE_MODULES_VAULT.`
+      });
+    }
+    if (r3Innate > 0) {
+      issues.push({
+        type: 'error',
+        text: `INVALID_INNATE_RANK: Rank 3 só pode ser equipado como Spare Module no SPARE_MODULES_VAULT.`
+      });
+    }
+
+    if (r1Innate < 3 || r2Innate < 1) {
       issues.push({
         type: 'info',
-        text: `INNATE_QUOTA_INCOMPLETE: ${r1}/3 Rank 1 and ${r2}/1 Rank 2 allocated.`
+        text: `INNATE_QUOTA_INCOMPLETE: ${r1Innate}/3 Rank 1 e ${r2Innate}/1 Rank 2 inatos alocados.`
       });
     }
   }
