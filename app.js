@@ -7,15 +7,16 @@ const state = {
   spareVault: {
     rank1: 0,
     rank2: 0,
-    rank3: 0,
-    unassigned: [] // Array of specific unassigned module definitions or counts
+    rank3: 0
   },
   costFilter: 'all',
   moduleRankFilter: 'all',
   moduleSearchQuery: '',
+  spareSearchQuery: '',
   glossaryCategory: 'all',
   glossarySearchQuery: '',
-  enableHomebrew: false, // Default: OFF as requested
+  // Set of enabled homebrew item IDs (empty by default: all HB OFF)
+  enabledHbIds: new Set(),
   activeTab: 'tab-base'
 };
 
@@ -49,21 +50,30 @@ function initDefaultDeck() {
     }
   }
 
-  // Load HB toggle state
-  const savedHb = localStorage.getItem('sotc_hb_enabled');
-  if (savedHb !== null) {
-    state.enableHomebrew = (savedHb === 'true');
+  // Load individual HB enabled set
+  const savedHbSet = localStorage.getItem('sotc_enabled_hb_ids');
+  if (savedHbSet) {
+    try {
+      state.enabledHbIds = new Set(JSON.parse(savedHbSet));
+    } catch (e) {
+      state.enabledHbIds = new Set();
+    }
   }
 }
 
 function persistState() {
   localStorage.setItem('sotc_deck_build', JSON.stringify(state.deck));
   localStorage.setItem('sotc_spare_vault', JSON.stringify(state.spareVault));
-  localStorage.setItem('sotc_hb_enabled', state.enableHomebrew);
+  localStorage.setItem('sotc_enabled_hb_ids', JSON.stringify(Array.from(state.enabledHbIds)));
 }
 
 function persistDeck() {
   persistState();
+}
+
+function isItemAllowed(item) {
+  if (!item.isHomebrew && item.category !== 'Community' && !item.credit) return true;
+  return state.enabledHbIds.has(item.id);
 }
 
 function createSkillFromBase(base) {
@@ -225,9 +235,8 @@ function renderBaseCatalog() {
   const currentSkill = getActiveSkill();
 
   const filtered = window.SKILL_BASES.filter(base => {
-    // Check Homebrew filter
-    const isHb = base.category === 'Community' || !!base.credit;
-    if (isHb && !state.enableHomebrew) return false;
+    // Individual item check for Homebrew
+    if (!isItemAllowed(base)) return false;
 
     if (state.costFilter === 'all') return true;
     return base.cost === parseInt(state.costFilter);
@@ -364,8 +373,8 @@ function renderModuleCatalog() {
   if (!skill) return;
 
   const filtered = window.MODULES.filter(mod => {
-    // Check Homebrew filter
-    if (mod.isHomebrew && !state.enableHomebrew) return false;
+    // Check individual Homebrew allowance
+    if (!isItemAllowed(mod)) return false;
 
     if (state.moduleRankFilter !== 'all' && mod.rank !== parseInt(state.moduleRankFilter)) return false;
     if (state.moduleSearchQuery) {
@@ -428,7 +437,7 @@ function renderModuleCatalog() {
       attachBtn.addEventListener('click', () => {
         const dieSelect = item.querySelector('.select-mod-die');
         const dieIndex = dieSelect ? parseInt(dieSelect.value) : null;
-        installModuleToSkill(skill, mod, dieIndex);
+        installModuleToSkill(skill, mod, dieIndex, false);
       });
     }
 
@@ -443,16 +452,20 @@ function renderModuleCatalog() {
     const row = document.createElement('div');
     row.className = 'module-item';
     const sourceTag = mod.isHomebrew ? '<span class="badge-source badge-source-hb">[HB]</span>' : '';
+    const spareTag = mod.isSpare ? '<span class="term-badge" style="border-color:var(--term-green); color:var(--term-green)">[SPARE]</span>' : '';
     row.innerHTML = `
       <div class="module-item-header">
-        <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag}</span>
+        <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag} ${spareTag}</span>
         <span class="term-badge" style="border-color:var(--term-amber); color:var(--term-amber)">RANK_${mod.rank} // GLOBAL</span>
       </div>
       <p class="module-item-desc">${mod.effectText}</p>
       <button class="term-btn term-btn-danger" style="align-self:flex-end; padding:1px 6px; font-size:10px;" data-remove-global="${idx}">[DETACH]</button>
     `;
     row.querySelector('[data-remove-global]').addEventListener('click', () => {
-      skill.installedModules.splice(idx, 1);
+      const removed = skill.installedModules.splice(idx, 1)[0];
+      if (removed && removed.isSpare) {
+        state.spareVault[`rank${removed.rank}`] = (state.spareVault[`rank${removed.rank}`] || 0) + 1;
+      }
       recalculateSkillDice(skill);
       persistDeck();
       renderAll();
@@ -467,16 +480,20 @@ function renderModuleCatalog() {
       const row = document.createElement('div');
       row.className = 'module-item';
       const sourceTag = mod.isHomebrew ? '<span class="badge-source badge-source-hb">[HB]</span>' : '';
+      const spareTag = mod.isSpare ? '<span class="term-badge" style="border-color:var(--term-green); color:var(--term-green)">[SPARE]</span>' : '';
       row.innerHTML = `
         <div class="module-item-header">
-          <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag}</span>
+          <span class="module-item-title">${mod.name.toUpperCase()} ${sourceTag} ${spareTag}</span>
           <span class="term-badge">RANK_${mod.rank} // DIE_${dieIdx + 1}</span>
         </div>
         <p class="module-item-desc">${mod.effectText || mod.name}</p>
         <button class="term-btn term-btn-danger" style="align-self:flex-end; padding:1px 6px; font-size:10px;" data-remove-die="${dieIdx}" data-remove-mod="${modIdx}">[DETACH]</button>
       `;
       row.querySelector('[data-remove-die]').addEventListener('click', () => {
-        die.installedModules.splice(modIdx, 1);
+        const removed = die.installedModules.splice(modIdx, 1)[0];
+        if (removed && removed.isSpare) {
+          state.spareVault[`rank${removed.rank}`] = (state.spareVault[`rank${removed.rank}`] || 0) + 1;
+        }
         recalculateSkillDice(skill);
         persistDeck();
         renderAll();
@@ -489,13 +506,12 @@ function renderModuleCatalog() {
   document.getElementById('installed-mod-count').textContent = totalInstalled;
 }
 
-// Pure Declarative Recalculation of Dice Stats from Original Base
+// Declarative Recalculation of Dice Stats from Original Base
 function recalculateSkillDice(skill) {
   if (skill.isUnique) {
     const origUnique = window.UNIQUE_SKILLS.find(u => u.id === skill.baseId);
     if (!origUnique) return;
     
-    // Filter out extra dice if Extra Die module was removed
     const hasExtraDieMod = (skill.installedModules || []).some(m => m.id === 'extra_die');
     if (!hasExtraDieMod) {
       skill.dice = skill.dice.filter(d => !d.isExtraDie);
@@ -507,7 +523,6 @@ function recalculateSkillDice(skill) {
         die.sides = origDie.sides;
         die.bonus = origDie.bonus || 0;
       }
-      // Re-apply die module mutations
       (die.installedModules || []).forEach(m => {
         const modDef = window.MODULES.find(md => md.id === m.id);
         if (modDef && modDef.apply) {
@@ -521,7 +536,6 @@ function recalculateSkillDice(skill) {
   const origBase = window.SKILL_BASES.find(b => b.id === skill.baseId);
   if (!origBase) return;
 
-  // Handle Extra Die Module addition/removal
   const hasExtraDieMod = (skill.installedModules || []).some(m => m.id === 'extra_die');
   if (!hasExtraDieMod) {
     skill.dice = skill.dice.filter(d => !d.isExtraDie);
@@ -542,7 +556,6 @@ function recalculateSkillDice(skill) {
     });
   }
 
-  // Reset each die to base stats and re-apply active module modifiers
   skill.dice.forEach((die, idx) => {
     const origDie = origBase.dice[idx];
     if (origDie) {
@@ -554,7 +567,6 @@ function recalculateSkillDice(skill) {
       die.bonus = 0;
     }
 
-    // Re-apply module transforms
     (die.installedModules || []).forEach(m => {
       const modDef = window.MODULES.find(md => md.id === m.id);
       if (modDef && modDef.apply) {
@@ -564,7 +576,15 @@ function recalculateSkillDice(skill) {
   });
 }
 
-function installModuleToSkill(skill, mod, dieIndex) {
+function installModuleToSkill(skill, mod, dieIndex, isSpare = false) {
+  if (isSpare) {
+    const available = state.spareVault[`rank${mod.rank}`] || 0;
+    if (available <= 0) {
+      showToast(`NO_SPARE_AVAILABLE: VOCÊ NÃO TEM SPARE MODULE DE RANK ${mod.rank} NO COFRE.`);
+      return;
+    }
+  }
+
   const rank3Count = (skill.installedModules || []).filter(m => m.rank === 3).length +
     skill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.rank === 3).length, 0);
 
@@ -578,7 +598,7 @@ function installModuleToSkill(skill, mod, dieIndex) {
     return;
   }
 
-  // Strict Tag Collision Prevention
+  // Tag Collision Prevention
   if (mod.tag && !['[Power]', '[Die Size]', '[Extra Die]'].includes(mod.tag)) {
     if (mod.target === 'die' && dieIndex !== null && skill.dice[dieIndex]) {
       const targetDie = skill.dice[dieIndex];
@@ -612,6 +632,10 @@ function installModuleToSkill(skill, mod, dieIndex) {
     }
   }
 
+  if (isSpare) {
+    state.spareVault[`rank${mod.rank}`]--;
+  }
+
   if (mod.target === 'die' && dieIndex !== null && skill.dice[dieIndex]) {
     const targetDie = skill.dice[dieIndex];
     const effect = typeof mod.effectText === 'function' ? mod.effectText(skill.cost, targetDie) : mod.effectText;
@@ -621,6 +645,7 @@ function installModuleToSkill(skill, mod, dieIndex) {
       name: mod.name,
       rank: mod.rank,
       tag: mod.tag,
+      isSpare: isSpare,
       isHomebrew: mod.isHomebrew || false,
       source: mod.source || 'Core Official',
       effectText: effect
@@ -633,6 +658,7 @@ function installModuleToSkill(skill, mod, dieIndex) {
       name: mod.name,
       rank: mod.rank,
       tag: mod.tag,
+      isSpare: isSpare,
       isHomebrew: mod.isHomebrew || false,
       source: mod.source || 'Core Official',
       effectText: effect
@@ -640,9 +666,9 @@ function installModuleToSkill(skill, mod, dieIndex) {
   }
 
   recalculateSkillDice(skill);
-  persistDeck();
+  persistState();
   renderAll();
-  showToast(`MODULE_MOUNTED: ${mod.name.toUpperCase()}`);
+  showToast(isSpare ? `SPARE_MOUNTED (RANK ${mod.rank}): ${mod.name.toUpperCase()}` : `MODULE_MOUNTED: ${mod.name.toUpperCase()}`);
 }
 
 function validateSkill(skill) {
@@ -873,13 +899,12 @@ function renderCardPreview() {
   renderRealtimeAnnotations(skill);
 }
 
-// Render Spare Modules Vault
+// Render Spare Modules Vault and Direct Activator
 function renderSpareVault() {
   document.getElementById('spare-count-r1').textContent = state.spareVault.rank1 || 0;
   document.getElementById('spare-count-r2').textContent = state.spareVault.rank2 || 0;
   document.getElementById('spare-count-r3').textContent = state.spareVault.rank3 || 0;
 
-  // Calculate total active deck modules
   let deckActiveMods = 0;
   state.deck.forEach(s => {
     deckActiveMods += (s.installedModules?.length || 0) +
@@ -887,68 +912,222 @@ function renderSpareVault() {
   });
   document.getElementById('deck-total-active-mods').textContent = `${deckActiveMods} ATTACHED`;
 
-  const unassignedList = document.getElementById('spare-unassigned-list');
-  unassignedList.innerHTML = '';
+  // Render Spare Module direct activation selector
+  const selectorList = document.getElementById('spare-modules-selector-list');
+  if (selectorList) {
+    selectorList.innerHTML = '';
+    const skill = getActiveSkill();
 
-  const totalSpares = (state.spareVault.rank1 || 0) + (state.spareVault.rank2 || 0) + (state.spareVault.rank3 || 0);
-  document.getElementById('unassigned-spare-count').textContent = totalSpares;
-
-  if (totalSpares === 0) {
-    unassignedList.innerHTML = '<p class="text-dim" style="padding:8px;">VAULT_IS_EMPTY. USE BUTTONS ABOVE TO ACCUMULATE SPARE MODULES FROM LEVELING OR INTELLECT.</p>';
-  } else {
-    for (let r = 1; r <= 3; r++) {
-      const count = state.spareVault[`rank${r}`] || 0;
-      if (count > 0) {
-        const item = document.createElement('div');
-        item.className = 'module-item';
-        item.innerHTML = `
-          <div class="module-item-header">
-            <span class="module-item-title">SPARE MODULES [RANK ${r}]</span>
-            <span class="term-badge">COUNT: ${count}</span>
-          </div>
-          <p class="module-item-desc">Disponíveis para anexar livremente em qualquer carta de combate do buffer.</p>
-          <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:4px;">
-            <button class="term-btn term-btn-danger" style="padding:1px 6px; font-size:10px;" data-remove-spare="${r}">[ - 1 ]</button>
-          </div>
-        `;
-        item.querySelector('[data-remove-spare]').addEventListener('click', () => {
-          if (state.spareVault[`rank${r}`] > 0) {
-            state.spareVault[`rank${r}`]--;
-            persistState();
-            renderSpareVault();
-          }
-        });
-        unassignedList.appendChild(item);
+    const filtered = window.MODULES.filter(mod => {
+      if (!isItemAllowed(mod)) return false;
+      if (state.spareSearchQuery) {
+        const q = state.spareSearchQuery.toLowerCase();
+        const matchName = mod.name.toLowerCase().includes(q);
+        const matchDesc = mod.description.toLowerCase().includes(q);
+        const matchCat = (mod.category || '').toLowerCase().includes(q);
+        if (!matchName && !matchDesc && !matchCat) return false;
       }
-    }
+      return true;
+    });
+
+    filtered.forEach(mod => {
+      const available = state.spareVault[`rank${mod.rank}`] || 0;
+      const item = document.createElement('div');
+      item.className = 'module-item';
+
+      let attachHtml = '';
+      if (skill) {
+        if (mod.target === 'die') {
+          let optionsHtml = '';
+          skill.dice.forEach((d, idx) => {
+            const canAttach = !mod.filterDice || mod.filterDice(d);
+            if (canAttach) {
+              optionsHtml += `<option value="${idx}">DIE_${idx + 1} [${d.selectedType}]</option>`;
+            }
+          });
+          if (optionsHtml) {
+            attachHtml = `
+              <div style="display:flex; gap:4px; align-items:center;">
+                <select class="term-input select-spare-die" style="padding:2px 4px; font-size:10px; width:auto;">
+                  ${optionsHtml}
+                </select>
+                <button class="term-btn term-btn-primary spare-attach-btn" ${available <= 0 ? 'disabled style="opacity:0.4;"' : ''} style="padding:2px 8px; font-size:10px;">[MOUNT_SPARE]</button>
+              </div>
+            `;
+          } else {
+            attachHtml = `<span class="text-dim" style="font-size:10px;">[INCOMPATIBLE_DICE]</span>`;
+          }
+        } else {
+          attachHtml = `<button class="term-btn term-btn-primary spare-attach-btn" ${available <= 0 ? 'disabled style="opacity:0.4;"' : ''} style="padding:2px 8px; font-size:10px;">[MOUNT_PAGE_SPARE]</button>`;
+        }
+      }
+
+      const sourceClass = mod.isHomebrew ? 'badge-source-hb' : 'badge-source-official';
+      const sourceLabel = mod.isHomebrew ? `[HB: ${mod.source.replace('Community: ', '')}]` : '[OFFICIAL]';
+
+      item.innerHTML = `
+        <div class="module-item-header">
+          <span class="module-item-title">${mod.name.toUpperCase()} <span class="badge-source ${sourceClass}">${sourceLabel}</span></span>
+          <span class="term-badge" style="border-color:${available > 0 ? 'var(--term-green)' : 'var(--term-border)'}; color:${available > 0 ? 'var(--term-green)' : 'var(--text-dim)'}">RANK_${mod.rank} (VAULT: ${available})</span>
+        </div>
+        <p class="module-item-desc">${mod.description}</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span class="text-dim" style="font-size:10px;">CAT: ${mod.category || 'GENERAL'}</span>
+          ${attachHtml}
+        </div>
+      `;
+
+      const attachBtn = item.querySelector('.spare-attach-btn');
+      if (attachBtn && available > 0 && skill) {
+        attachBtn.addEventListener('click', () => {
+          const dieSelect = item.querySelector('.select-spare-die');
+          const dieIndex = dieSelect ? parseInt(dieSelect.value) : null;
+          installModuleToSkill(skill, mod, dieIndex, true);
+        });
+      }
+
+      selectorList.appendChild(item);
+    });
   }
 
   // Render Deck breakdown
   const breakdownList = document.getElementById('deck-all-modules-breakdown');
-  breakdownList.innerHTML = '';
+  if (breakdownList) {
+    breakdownList.innerHTML = '';
 
-  state.deck.forEach((s, sIdx) => {
-    const pageMods = [
-      ...(s.installedModules || []).map(m => ({ ...m, scope: 'GLOBAL' })),
-      ...s.dice.flatMap((d, di) => (d.installedModules || []).map(m => ({ ...m, scope: `DIE_${di + 1}` })))
-    ];
+    state.deck.forEach((s, sIdx) => {
+      const pageMods = [
+        ...(s.installedModules || []).map(m => ({ ...m, scope: 'GLOBAL' })),
+        ...s.dice.flatMap((d, di) => (d.installedModules || []).map(m => ({ ...m, scope: `DIE_${di + 1}` })))
+      ];
 
-    const group = document.createElement('div');
-    group.className = 'module-item';
-    group.style.marginBottom = '8px';
+      const group = document.createElement('div');
+      group.className = 'module-item';
+      group.style.marginBottom = '8px';
 
-    const modListHtml = pageMods.length > 0
-      ? pageMods.map(m => `<div>- [R${m.rank}] <strong>${m.name}</strong> (${m.scope}): <span class="text-dim">${m.effectText || ''}</span></div>`).join('')
-      : '<span class="text-dim">NO_MODULES_INSTALLED</span>';
+      const modListHtml = pageMods.length > 0
+        ? pageMods.map(m => `<div>- [R${m.rank}] <strong>${m.name}</strong> (${m.scope}): <span class="text-dim">${m.effectText || ''}</span> ${m.isSpare ? '<span class="term-badge" style="color:var(--term-green); border-color:var(--term-green); font-size:9px;">[SPARE]</span>' : ''}</div>`).join('')
+        : '<span class="text-dim">NO_MODULES_INSTALLED</span>';
 
-    group.innerHTML = `
-      <div class="module-item-header">
-        <span class="module-item-title">[${sIdx + 1}] ${s.name.toUpperCase()} (${s.cost}L)</span>
-        <span class="term-badge">${pageMods.length} MODS</span>
+      group.innerHTML = `
+        <div class="module-item-header">
+          <span class="module-item-title">[${sIdx + 1}] ${s.name.toUpperCase()} (${s.cost}L)</span>
+          <span class="term-badge">${pageMods.length} MODS</span>
+        </div>
+        <div style="font-size:11px; margin-top:4px; line-height:1.4;">${modListHtml}</div>
+      `;
+      breakdownList.appendChild(group);
+    });
+  }
+}
+
+// Render Homebrew Manager List with Individual Switches
+function renderHomebrewManager() {
+  const container = document.getElementById('homebrew-manager-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Collect all homebrew items (modules and bases)
+  const hbModules = window.MODULES.filter(m => m.isHomebrew);
+  const hbBases = window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit);
+
+  // Group by Author / Source
+  const groups = {};
+
+  hbModules.forEach(m => {
+    const author = m.source || 'Community Homebrew';
+    groups[author] = groups[author] || { bases: [], modules: [] };
+    groups[author].modules.push(m);
+  });
+
+  hbBases.forEach(b => {
+    const author = b.credit ? `Community: ${b.credit}` : 'Community Homebrew';
+    groups[author] = groups[author] || { bases: [], modules: [] };
+    groups[author].bases.push(b);
+  });
+
+  const authors = Object.keys(groups);
+  if (authors.length === 0) {
+    container.innerHTML = '<p class="text-dim">NO_HOMEBREW_ITEMS_REGISTERED.</p>';
+    return;
+  }
+
+  authors.forEach(author => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'hb-author-group';
+
+    const groupItems = [...groups[author].bases, ...groups[author].modules];
+    const allActive = groupItems.every(item => state.enabledHbIds.has(item.id));
+
+    groupDiv.innerHTML = `
+      <div class="hb-author-header">
+        <div>
+          <strong style="color:var(--term-amber); font-size:13px;">${author.toUpperCase()}</strong>
+          <span class="text-dim" style="font-size:11px; margin-left:8px;">(${groupItems.length} ITENS)</span>
+        </div>
+        <button class="term-btn toggle-author-btn" style="padding:2px 8px; font-size:10px;">
+          ${allActive ? '[ DISABLE_ALL_AUTHOR ]' : '[ ENABLE_ALL_AUTHOR ]'}
+        </button>
       </div>
-      <div style="font-size:11px; margin-top:4px; line-height:1.4;">${modListHtml}</div>
+      <div class="hb-items-list"></div>
     `;
-    breakdownList.appendChild(group);
+
+    groupDiv.querySelector('.toggle-author-btn').addEventListener('click', () => {
+      const turnOn = !allActive;
+      groupItems.forEach(item => {
+        if (turnOn) state.enabledHbIds.add(item.id);
+        else state.enabledHbIds.delete(item.id);
+      });
+      persistState();
+      renderAll();
+      showToast(`${author.toUpperCase()}: ${turnOn ? 'TODOS ATIVADOS' : 'TODOS DESATIVADOS'}`);
+    });
+
+    const itemsContainer = groupDiv.querySelector('.hb-items-list');
+
+    // Bases
+    groups[author].bases.forEach(b => {
+      const isEnabled = state.enabledHbIds.has(b.id);
+      const row = document.createElement('div');
+      row.className = 'hb-item-row';
+      row.innerHTML = `
+        <label class="hb-checkbox-label">
+          <input type="checkbox" data-hb-id="${b.id}" ${isEnabled ? 'checked' : ''}>
+          <span>[BASE] <strong>${b.name}</strong> (${b.cost}L) - <span class="text-dim">${b.description}</span></span>
+        </label>
+        <span class="term-badge">BASE_PAGE</span>
+      `;
+      row.querySelector('input').addEventListener('change', (e) => {
+        if (e.target.checked) state.enabledHbIds.add(b.id);
+        else state.enabledHbIds.delete(b.id);
+        persistState();
+        renderAll();
+      });
+      itemsContainer.appendChild(row);
+    });
+
+    // Modules
+    groups[author].modules.forEach(m => {
+      const isEnabled = state.enabledHbIds.has(m.id);
+      const row = document.createElement('div');
+      row.className = 'hb-item-row';
+      row.innerHTML = `
+        <label class="hb-checkbox-label">
+          <input type="checkbox" data-hb-id="${m.id}" ${isEnabled ? 'checked' : ''}>
+          <span>[MOD R${m.rank}] <strong>${m.name}</strong> (${m.tag}) - <span class="text-dim">${m.description}</span></span>
+        </label>
+        <span class="term-badge">RANK_${m.rank}</span>
+      `;
+      row.querySelector('input').addEventListener('change', (e) => {
+        if (e.target.checked) state.enabledHbIds.add(m.id);
+        else state.enabledHbIds.delete(m.id);
+        persistState();
+        renderAll();
+      });
+      itemsContainer.appendChild(row);
+    });
+
+    container.appendChild(groupDiv);
   });
 }
 
@@ -1070,7 +1249,8 @@ function exportDeckMarkdown() {
 function exportDeckJSON() {
   const data = {
     deck: state.deck,
-    spareVault: state.spareVault
+    spareVault: state.spareVault,
+    enabledHbIds: Array.from(state.enabledHbIds)
   };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
@@ -1095,6 +1275,7 @@ function importDeckJSON(e) {
       } else if (imported.deck && Array.isArray(imported.deck)) {
         state.deck = imported.deck;
         if (imported.spareVault) state.spareVault = imported.spareVault;
+        if (imported.enabledHbIds) state.enabledHbIds = new Set(imported.enabledHbIds);
         state.activeSkillIndex = 0;
       }
       persistDeck();
@@ -1114,6 +1295,7 @@ function renderAll() {
   renderUniqueSkills();
   renderModuleCatalog();
   renderSpareVault();
+  renderHomebrewManager();
   renderGlossary();
   renderCardPreview();
 }
@@ -1162,6 +1344,14 @@ function setupEvents() {
     renderModuleCatalog();
   });
 
+  const spareSearch = document.getElementById('input-spare-mod-search');
+  if (spareSearch) {
+    spareSearch.addEventListener('input', (e) => {
+      state.spareSearchQuery = e.target.value;
+      renderSpareVault();
+    });
+  }
+
   // Glossary filters
   document.querySelectorAll('[data-glossary-cat]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1202,16 +1392,45 @@ function setupEvents() {
     showToast('SPARE_MODULE_ADDED: RANK 3');
   });
 
-  // Homebrew Toggle Button
-  const btnToggleHb = document.getElementById('btn-toggle-hb');
-  if (btnToggleHb) {
-    btnToggleHb.textContent = state.enableHomebrew ? '[ HB_CONTENT: ON ]' : '[ HB_CONTENT: OFF ]';
-    btnToggleHb.addEventListener('click', () => {
-      state.enableHomebrew = !state.enableHomebrew;
-      btnToggleHb.textContent = state.enableHomebrew ? '[ HB_CONTENT: ON ]' : '[ HB_CONTENT: OFF ]';
+  // Homebrew Enable/Disable All buttons in Tab
+  const btnHbEnableAll = document.getElementById('btn-hb-enable-all');
+  if (btnHbEnableAll) {
+    btnHbEnableAll.addEventListener('click', () => {
+      window.MODULES.filter(m => m.isHomebrew).forEach(m => state.enabledHbIds.add(m.id));
+      window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit).forEach(b => state.enabledHbIds.add(b.id));
       persistState();
       renderAll();
-      showToast(state.enableHomebrew ? 'HOMEBREW_CONTENT_ACTIVATED' : 'HOMEBREW_CONTENT_DEACTIVATED');
+      showToast('ALL_HOMEBREW_ITEMS_ENABLED.');
+    });
+  }
+
+  const btnHbDisableAll = document.getElementById('btn-hb-disable-all');
+  if (btnHbDisableAll) {
+    btnHbDisableAll.addEventListener('click', () => {
+      state.enabledHbIds.clear();
+      persistState();
+      renderAll();
+      showToast('ALL_HOMEBREW_ITEMS_DISABLED.');
+    });
+  }
+
+  // Homebrew Header Toggle Button (Quick Toggle)
+  const btnToggleHb = document.getElementById('btn-toggle-hb');
+  if (btnToggleHb) {
+    const hasAny = state.enabledHbIds.size > 0;
+    btnToggleHb.textContent = hasAny ? `[ HB_ACTIVE: ${state.enabledHbIds.size} ]` : '[ HB_ACTIVE: 0 ]';
+    btnToggleHb.addEventListener('click', () => {
+      if (state.enabledHbIds.size > 0) {
+        state.enabledHbIds.clear();
+        showToast('ALL_HOMEBREW_DISABLED.');
+      } else {
+        window.MODULES.filter(m => m.isHomebrew).forEach(m => state.enabledHbIds.add(m.id));
+        window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit).forEach(b => state.enabledHbIds.add(b.id));
+        showToast('ALL_HOMEBREW_ENABLED.');
+      }
+      persistState();
+      renderAll();
+      btnToggleHb.textContent = state.enabledHbIds.size > 0 ? `[ HB_ACTIVE: ${state.enabledHbIds.size} ]` : '[ HB_ACTIVE: 0 ]';
     });
   }
 
@@ -1232,7 +1451,7 @@ function setupEvents() {
     if (confirm('SYS_CONFIRM: RESET COMBAT BUFFER TO DEFAULT CONFIGURATION?')) {
       localStorage.removeItem('sotc_deck_build');
       localStorage.removeItem('sotc_spare_vault');
-      state.spareVault = { rank1: 0, rank2: 0, rank3: 0, unassigned: [] };
+      state.spareVault = { rank1: 0, rank2: 0, rank3: 0 };
       initDefaultDeck();
       state.activeSkillIndex = 0;
       renderAll();

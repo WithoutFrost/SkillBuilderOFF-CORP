@@ -816,6 +816,40 @@ body.crt-disabled .crt-vignette {
   font-size: 13px;
 }
 
+/* Homebrew List Styles */
+.hb-author-group {
+  margin-bottom: 12px;
+  background: var(--term-sub-bg);
+  border: 1px solid var(--term-border);
+  padding: 8px 12px;
+}
+.hb-author-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--term-border);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+.hb-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(26, 51, 34, 0.4);
+}
+.hb-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.hb-checkbox-label input[type="checkbox"] {
+  accent-color: var(--term-green);
+  cursor: pointer;
+}
+
 @media (max-width: 1200px) {
   .term-container {
     grid-template-columns: 1fr;
