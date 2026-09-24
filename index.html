@@ -176,21 +176,39 @@
           <div class="vault-info">
             <span class="panel-subtitle">&gt; FIXER_SPARE_MODULES_VAULT</span>
             <p class="text-dim" style="font-size:11px; margin-top:2px;">
-              Adicione módulos sobressalentes ganhos por Intelecto ou Level Up. Você pode montar qualquer módulo catalogado diretamente na carta selecionada usando seu estoque de Spares!
+              Gerencie seus Spare Modules disponíveis no cofre (adquiridos por Intelecto ou Level Up). Use <strong>[MOUNT_SPARE]</strong> para instalar na carta ativa e <strong>[DETACH]</strong> para desinstalar e devolver ao cofre.
             </p>
           </div>
-          <div class="vault-controls">
-            <button id="btn-add-spare-r1" class="term-btn">+ ADD SPARE [RANK 1]</button>
-            <button id="btn-add-spare-r2" class="term-btn">+ ADD SPARE [RANK 2]</button>
-            <button id="btn-add-spare-r3" class="term-btn">+ ADD SPARE [RANK 3]</button>
+          <div class="vault-controls" style="display:flex; gap:6px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:3px; border:1px solid var(--term-border); padding:2px 6px;">
+              <span style="font-size:11px; margin-right:4px;">RANK 1:</span>
+              <button id="btn-dec-spare-r1" class="term-btn" style="padding:1px 6px; font-size:11px;">-</button>
+              <strong id="spare-count-r1" class="text-bright" style="min-width:18px; text-align:center;">0</strong>
+              <button id="btn-add-spare-r1" class="term-btn term-btn-primary" style="padding:1px 6px; font-size:11px;">+</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:3px; border:1px solid var(--term-border); padding:2px 6px;">
+              <span style="font-size:11px; margin-right:4px;">RANK 2:</span>
+              <button id="btn-dec-spare-r2" class="term-btn" style="padding:1px 6px; font-size:11px;">-</button>
+              <strong id="spare-count-r2" class="text-bright" style="min-width:18px; text-align:center;">0</strong>
+              <button id="btn-add-spare-r2" class="term-btn term-btn-primary" style="padding:1px 6px; font-size:11px;">+</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:3px; border:1px solid var(--term-border); padding:2px 6px;">
+              <span style="font-size:11px; margin-right:4px;">RANK 3:</span>
+              <button id="btn-dec-spare-r3" class="term-btn" style="padding:1px 6px; font-size:11px;">-</button>
+              <strong id="spare-count-r3" class="text-bright" style="min-width:18px; text-align:center;">0</strong>
+              <button id="btn-add-spare-r3" class="term-btn term-btn-primary" style="padding:1px 6px; font-size:11px;">+</button>
+            </div>
+
+            <button id="btn-clear-all-spares" class="term-btn term-btn-danger" style="padding:2px 8px; font-size:10px;">[ CLEAR_ALL_SPARES ]</button>
           </div>
         </div>
 
         <div class="spare-summary-metrics">
-          <div class="metric-badge">SPARE R1 DISPONÍVEL: <strong id="spare-count-r1" class="text-bright">0</strong></div>
-          <div class="metric-badge">SPARE R2 DISPONÍVEL: <strong id="spare-count-r2" class="text-bright">0</strong></div>
-          <div class="metric-badge">SPARE R3 DISPONÍVEL: <strong id="spare-count-r3" class="text-bright">0</strong></div>
-          <div class="metric-badge">TOTAL DECK ATTACHED: <strong id="deck-total-active-mods" class="text-bright">0</strong></div>
+          <div class="metric-badge">CARTA ATIVA SELECIONADA: <strong id="spare-active-card-name" class="text-bright" style="color:var(--term-amber);">SINGLE STRIKE</strong></div>
+          <div class="metric-badge">SPARES INSTALADOS NA CARTA: <strong id="spare-attached-active-card" class="text-bright">0</strong></div>
+          <div class="metric-badge">TOTAL DECK MODS: <strong id="deck-total-active-mods" class="text-bright">0</strong></div>
         </div>
 
         <div class="module-columns" style="margin-top:12px;">

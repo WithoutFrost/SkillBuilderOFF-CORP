@@ -1035,16 +1035,36 @@ function renderCardPreview() {
 
 // Render Spare Modules Vault and Direct Activator
 function renderSpareVault() {
-  document.getElementById('spare-count-r1').textContent = state.spareVault.rank1 || 0;
-  document.getElementById('spare-count-r2').textContent = state.spareVault.rank2 || 0;
-  document.getElementById('spare-count-r3').textContent = state.spareVault.rank3 || 0;
+  const r1El = document.getElementById('spare-count-r1');
+  const r2El = document.getElementById('spare-count-r2');
+  const r3El = document.getElementById('spare-count-r3');
+  if (r1El) r1El.textContent = state.spareVault.rank1 || 0;
+  if (r2El) r2El.textContent = state.spareVault.rank2 || 0;
+  if (r3El) r3El.textContent = state.spareVault.rank3 || 0;
+
+  const currentSkill = getActiveSkill();
+  const activeCardNameEl = document.getElementById('spare-active-card-name');
+  if (activeCardNameEl) {
+    activeCardNameEl.textContent = currentSkill ? currentSkill.name.toUpperCase() : 'NONE';
+  }
+
+  const attachedSparesActive = currentSkill
+    ? (currentSkill.installedModules || []).filter(m => m.isSpare).length +
+      currentSkill.dice.reduce((acc, d) => acc + (d.installedModules || []).filter(m => m.isSpare).length, 0)
+    : 0;
+
+  const spareActiveCountEl = document.getElementById('spare-attached-active-card');
+  if (spareActiveCountEl) {
+    spareActiveCountEl.textContent = attachedSparesActive;
+  }
 
   let deckActiveMods = 0;
   state.deck.forEach(s => {
     deckActiveMods += (s.installedModules?.length || 0) +
       s.dice.reduce((acc, d) => acc + (d.installedModules?.length || 0), 0);
   });
-  document.getElementById('deck-total-active-mods').textContent = `${deckActiveMods} ATTACHED`;
+  const deckModsEl = document.getElementById('deck-total-active-mods');
+  if (deckModsEl) deckModsEl.textContent = `${deckActiveMods} ATTACHED`;
 
   // Render Spare Module direct activation selector
   const selectorList = document.getElementById('spare-modules-selector-list');
@@ -1122,32 +1142,83 @@ function renderSpareVault() {
     });
   }
 
-  // Render Deck breakdown
+  // Render Deck breakdown with direct [DETACH] support
   const breakdownList = document.getElementById('deck-all-modules-breakdown');
   if (breakdownList) {
     breakdownList.innerHTML = '';
 
     state.deck.forEach((s, sIdx) => {
-      const pageMods = [
-        ...(s.installedModules || []).map(m => ({ ...m, scope: 'GLOBAL' })),
-        ...s.dice.flatMap((d, di) => (d.installedModules || []).map(m => ({ ...m, scope: `DIE_${di + 1}` })))
-      ];
-
+      const isSelectedPage = sIdx === state.activeSkillIndex;
       const group = document.createElement('div');
-      group.className = 'module-item';
+      group.className = `module-item ${isSelectedPage ? 'active-skill-item' : ''}`;
       group.style.marginBottom = '8px';
+      if (isSelectedPage) {
+        group.style.borderColor = 'var(--term-amber)';
+      }
 
-      const modListHtml = pageMods.length > 0
-        ? pageMods.map(m => `<div>- [R${m.rank}] <strong>${m.name}</strong> (${m.scope}): <span class="text-dim">${m.effectText || ''}</span> ${m.isSpare ? '<span class="term-badge" style="color:var(--term-green); border-color:var(--term-green); font-size:9px;">[SPARE]</span>' : ''}</div>`).join('')
-        : '<span class="text-dim">NO_MODULES_INSTALLED</span>';
+      const globalMods = (s.installedModules || []).map((m, gIdx) => ({ ...m, scope: 'GLOBAL', isGlobal: true, globalIndex: gIdx }));
+      const diceMods = s.dice.flatMap((d, di) => (d.installedModules || []).map((m, dmi) => ({ ...m, scope: `DIE_${di + 1}`, dieIndex: di, modIndex: dmi })));
+      const pageMods = [...globalMods, ...diceMods];
+
+      let rowsHtml = '';
+      if (pageMods.length === 0) {
+        rowsHtml = '<div class="text-dim" style="font-size:11px; padding:4px 0;">NO_MODULES_INSTALLED_ON_PAGE</div>';
+      } else {
+        rowsHtml = pageMods.map((m, pIdx) => {
+          const badgeType = m.isSpare
+            ? '<span class="term-badge" style="color:var(--term-green); border-color:var(--term-green); font-size:9px;">[SPARE]</span>'
+            : '<span class="term-badge" style="font-size:9px;">[INNATE]</span>';
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px dashed rgba(51,255,51,0.15);">
+              <div>
+                <strong>[R${m.rank}] ${m.name}</strong> <span class="text-dim">(${m.scope})</span> ${badgeType}
+                <div class="text-dim" style="font-size:10px;">${m.effectText || ''}</div>
+              </div>
+              <button class="term-btn term-btn-danger btn-detach-from-breakdown" data-skill-idx="${sIdx}" data-is-global="${m.isGlobal ? '1' : '0'}" data-global-idx="${m.globalIndex}" data-die-idx="${m.dieIndex}" data-mod-idx="${m.modIndex}" style="padding:1px 6px; font-size:9px;">[DETACH]</button>
+            </div>
+          `;
+        }).join('');
+      }
 
       group.innerHTML = `
         <div class="module-item-header">
-          <span class="module-item-title">[${sIdx + 1}] ${s.name.toUpperCase()} (${s.cost}L)</span>
+          <span class="module-item-title" style="cursor:pointer;" data-select-page="${sIdx}">[${sIdx + 1}] ${s.name.toUpperCase()} (${s.cost}L) ${isSelectedPage ? '<span style="color:var(--term-amber); font-size:10px;">[SELECTED]</span>' : ''}</span>
           <span class="term-badge">${pageMods.length} MODS</span>
         </div>
-        <div style="font-size:11px; margin-top:4px; line-height:1.4;">${modListHtml}</div>
+        <div style="margin-top:4px;">${rowsHtml}</div>
       `;
+
+      group.querySelector('[data-select-page]').addEventListener('click', () => {
+        state.activeSkillIndex = sIdx;
+        renderAll();
+      });
+
+      group.querySelectorAll('.btn-detach-from-breakdown').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetSkill = state.deck[sIdx];
+          const isGlobal = btn.getAttribute('data-is-global') === '1';
+          if (isGlobal) {
+            const gIdx = parseInt(btn.getAttribute('data-global-idx'));
+            const removed = targetSkill.installedModules.splice(gIdx, 1)[0];
+            if (removed && removed.isSpare) {
+              state.spareVault[`rank${removed.rank}`] = (state.spareVault[`rank${removed.rank}`] || 0) + 1;
+            }
+          } else {
+            const di = parseInt(btn.getAttribute('data-die-idx'));
+            const dmi = parseInt(btn.getAttribute('data-mod-idx'));
+            const removed = targetSkill.dice[di].installedModules.splice(dmi, 1)[0];
+            if (removed && removed.isSpare) {
+              state.spareVault[`rank${removed.rank}`] = (state.spareVault[`rank${removed.rank}`] || 0) + 1;
+            }
+          }
+          recalculateSkillDice(targetSkill);
+          persistDeck();
+          renderAll();
+          showToast('MODULE_DETACHED.');
+        });
+      });
+
       breakdownList.appendChild(group);
     });
   }
@@ -1509,26 +1580,86 @@ function setupEvents() {
   }
 
   // Spare vault buttons
-  document.getElementById('btn-add-spare-r1').addEventListener('click', () => {
-    state.spareVault.rank1 = (state.spareVault.rank1 || 0) + 1;
-    persistState();
-    renderSpareVault();
-    showToast('SPARE_MODULE_ADDED: RANK 1');
-  });
+  const btnAddR1 = document.getElementById('btn-add-spare-r1');
+  if (btnAddR1) {
+    btnAddR1.addEventListener('click', () => {
+      state.spareVault.rank1 = (state.spareVault.rank1 || 0) + 1;
+      persistState();
+      renderSpareVault();
+      showToast('SPARE_MODULE_ADDED: RANK 1');
+    });
+  }
 
-  document.getElementById('btn-add-spare-r2').addEventListener('click', () => {
-    state.spareVault.rank2 = (state.spareVault.rank2 || 0) + 1;
-    persistState();
-    renderSpareVault();
-    showToast('SPARE_MODULE_ADDED: RANK 2');
-  });
+  const btnDecR1 = document.getElementById('btn-dec-spare-r1');
+  if (btnDecR1) {
+    btnDecR1.addEventListener('click', () => {
+      if ((state.spareVault.rank1 || 0) > 0) {
+        state.spareVault.rank1--;
+        persistState();
+        renderSpareVault();
+      }
+    });
+  }
 
-  document.getElementById('btn-add-spare-r3').addEventListener('click', () => {
-    state.spareVault.rank3 = (state.spareVault.rank3 || 0) + 1;
-    persistState();
-    renderSpareVault();
-    showToast('SPARE_MODULE_ADDED: RANK 3');
-  });
+  const btnAddR2 = document.getElementById('btn-add-spare-r2');
+  if (btnAddR2) {
+    btnAddR2.addEventListener('click', () => {
+      state.spareVault.rank2 = (state.spareVault.rank2 || 0) + 1;
+      persistState();
+      renderSpareVault();
+      showToast('SPARE_MODULE_ADDED: RANK 2');
+    });
+  }
+
+  const btnDecR2 = document.getElementById('btn-dec-spare-r2');
+  if (btnDecR2) {
+    btnDecR2.addEventListener('click', () => {
+      if ((state.spareVault.rank2 || 0) > 0) {
+        state.spareVault.rank2--;
+        persistState();
+        renderSpareVault();
+      }
+    });
+  }
+
+  const btnAddR3 = document.getElementById('btn-add-spare-r3');
+  if (btnAddR3) {
+    btnAddR3.addEventListener('click', () => {
+      state.spareVault.rank3 = (state.spareVault.rank3 || 0) + 1;
+      persistState();
+      renderSpareVault();
+      showToast('SPARE_MODULE_ADDED: RANK 3');
+    });
+  }
+
+  const btnDecR3 = document.getElementById('btn-dec-spare-r3');
+  if (btnDecR3) {
+    btnDecR3.addEventListener('click', () => {
+      if ((state.spareVault.rank3 || 0) > 0) {
+        state.spareVault.rank3--;
+        persistState();
+        renderSpareVault();
+      }
+    });
+  }
+
+  const btnClearAllSpares = document.getElementById('btn-clear-all-spares');
+  if (btnClearAllSpares) {
+    btnClearAllSpares.addEventListener('click', () => {
+      // Return and clear all spares attached across entire deck
+      state.deck.forEach(s => {
+        s.installedModules = (s.installedModules || []).filter(m => !m.isSpare);
+        s.dice.forEach(d => {
+          d.installedModules = (d.installedModules || []).filter(m => !m.isSpare);
+        });
+        recalculateSkillDice(s);
+      });
+      state.spareVault = { rank1: 0, rank2: 0, rank3: 0 };
+      persistDeck();
+      renderAll();
+      showToast('ALL_SPARE_MODULES_CLEARED_AND_DETACHED.');
+    });
+  }
 
   // Homebrew Enable/Disable All buttons in Tab
   const btnHbEnableAll = document.getElementById('btn-hb-enable-all');
