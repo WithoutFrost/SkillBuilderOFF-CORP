@@ -1,4 +1,4 @@
-// Stars of the City TTRPG - Complete Official & Community Modules Library (151 Modules)
+// Stars of the City TTRPG - Complete Official & Community Modules Library (Separated Variants)
 const MODULES = [
   {
     "id": "aggravate",
@@ -40,8 +40,21 @@ const MODULES = [
     "effectText": "This skill gains: \"[On Kill] Gain 5 Charge.\""
   },
   {
-    "id": "blazing",
-    "name": "Blazing",
+    "id": "blazing_clash_win",
+    "name": "Blazing [Clash Win]",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Clash Win]",
+    "category": "Burn",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Clash Win] Trigger Blaze on the target.\"",
+    "effectText": "One Die gains: \"[Clash Win] Trigger Blaze on the target.\""
+  },
+  {
+    "id": "blazing_hit",
+    "name": "Blazing [Hit]",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -49,12 +62,12 @@ const MODULES = [
     "category": "Burn",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Blaze on the target.\"\n\nOne Die gains: \"[Clash Win] Trigger Blaze on the target.\"",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Blaze on the target.\"\n\nOne Die gains: \"[Clash Win] Trigger Blaze on the target.\""
+    "description": "One Die gains: \"[Hit] Trigger Blaze on the target.\"",
+    "effectText": "One Die gains: \"[Hit] Trigger Blaze on the target.\""
   },
   {
-    "id": "bleeding",
-    "name": "Bleeding",
+    "id": "bleeding_all_dice",
+    "name": "Bleeding (All Dice)",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -62,8 +75,21 @@ const MODULES = [
     "category": "Bleed",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost} Bleed.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Bleed.\"",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost} Bleed.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Bleed.\""
+    "description": "Any number of Dice gain: \"[Hit] Inflict 1 Bleed.\"",
+    "effectText": "Any number of Dice gain: \"[Hit] Inflict 1 Bleed.\""
+  },
+  {
+    "id": "bleeding_single_die",
+    "name": "Bleeding (Single Die)",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Hit]",
+    "category": "Bleed",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Hit] Inflict {Cost} Bleed.\"",
+    "effectText": "One Die gains: \"[Hit] Inflict {Cost} Bleed.\""
   },
   {
     "id": "blood_burst",
@@ -118,8 +144,8 @@ const MODULES = [
     "effectText": "One skill which is composed of only a single non-counter Offensive Die gains: \"[Eminence] Double the bonus from Strength.\"\n\n(Does not stack with similar effects.)"
   },
   {
-    "id": "burning",
-    "name": "Burning",
+    "id": "burning_all_dice",
+    "name": "Burning (All Dice)",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -127,8 +153,21 @@ const MODULES = [
     "category": "Burn",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one: \n\nOne Die gains: \"[Hit] Inflict {Cost+1} Burn.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Burn.\"\n\nYou may choose to replace [Hit] with [Clash Win].",
-    "effectText": "Choose one: \n\nOne Die gains: \"[Hit] Inflict {Cost+1} Burn.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Burn.\"\n\nYou may choose to replace [Hit] with [Clash Win]."
+    "description": "Any number of Dice gain: \"[Hit] Inflict 1 Burn.\" (You may choose to replace [Hit] with [Clash Win]).",
+    "effectText": "Any number of Dice gain: \"[Hit] Inflict 1 Burn.\" (You may choose to replace [Hit] with [Clash Win])."
+  },
+  {
+    "id": "burning_single_die",
+    "name": "Burning (Single Die)",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Hit]",
+    "category": "Burn",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Hit] Inflict {Cost+1} Burn.\" (You may choose to replace [Hit] with [Clash Win]).",
+    "effectText": "One Die gains: \"[Hit] Inflict {Cost+1} Burn.\" (You may choose to replace [Hit] with [Clash Win])."
   },
   {
     "id": "bypass",
@@ -157,8 +196,21 @@ const MODULES = [
     "effectText": "This skill gains: \"[On Use] Give another ally {Cost} Charge.\"\n\nIf Cost is 0, this grants 1 instead."
   },
   {
-    "id": "charging",
-    "name": "Charging",
+    "id": "charging_after_use",
+    "name": "Charging [After Use]",
+    "rank": 1,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Charge",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "This skill gains: \"[After Use] Gain {Cost} Charge.\" (If Cost is 0, this grants 1 instead).",
+    "effectText": "This skill gains: \"[After Use] Gain {Cost} Charge.\" (If Cost is 0, this grants 1 instead)."
+  },
+  {
+    "id": "charging_on_use",
+    "name": "Charging [On Use]",
     "rank": 1,
     "target": "skill",
     "repeating": false,
@@ -166,12 +218,12 @@ const MODULES = [
     "category": "Charge",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Charge.\"\n\nThis skill gains: \"[After Use] Gain {Cost} Charge.\"\n\nIf Cost is 0, this grants 1 instead.",
-    "effectText": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Charge.\"\n\nThis skill gains: \"[After Use] Gain {Cost} Charge.\"\n\nIf Cost is 0, this grants 1 instead."
+    "description": "This skill gains: \"[On Use] Gain {Cost} Charge.\" (If Cost is 0, this grants 1 instead).",
+    "effectText": "This skill gains: \"[On Use] Gain {Cost} Charge.\" (If Cost is 0, this grants 1 instead)."
   },
   {
-    "id": "comeback",
-    "name": "Comeback",
+    "id": "comeback_all_dice",
+    "name": "Comeback (+1 Power per Die Lost)",
     "rank": 1,
     "target": "die",
     "repeating": false,
@@ -179,8 +231,21 @@ const MODULES = [
     "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die besides the final gains \"[Clash Lose] Boost the power of the final Die by 2.\"\n\nAny number of Dice besides the final gain \"[Clash Lose] Boost the power of the final Die by 1.\"\n\n(Exclude Counter Dice from this module and its effects.)",
-    "effectText": "Choose one:\n\nOne Die besides the final gains \"[Clash Lose] Boost the power of the final Die by 2.\"\n\nAny number of Dice besides the final gain \"[Clash Lose] Boost the power of the final Die by 1.\"\n\n(Exclude Counter Dice from this module and its effects.)"
+    "description": "Any number of Dice besides the final gain: \"[Clash Lose] Boost the power of the final Die by 1.\" (Exclude Counter Dice).",
+    "effectText": "Any number of Dice besides the final gain: \"[Clash Lose] Boost the power of the final Die by 1.\" (Exclude Counter Dice)."
+  },
+  {
+    "id": "comeback_single_die",
+    "name": "Comeback (+2 Power to Final Die)",
+    "rank": 1,
+    "target": "die",
+    "repeating": false,
+    "tag": "[Clash Lose]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die besides the final gains: \"[Clash Lose] Boost the power of the final Die by 2.\" (Exclude Counter Dice).",
+    "effectText": "One Die besides the final gains: \"[Clash Lose] Boost the power of the final Die by 2.\" (Exclude Counter Dice)."
   },
   {
     "id": "counterplay",
@@ -300,8 +365,21 @@ const MODULES = [
     "effectText": "This skill gains: \"If any Dice on this skill clash, give all Defensive, non-counter Dice on this skill +1 power, but you lose 5 HP.\""
   },
   {
-    "id": "fast",
-    "name": "Fast",
+    "id": "fast_after_use",
+    "name": "Fast [After Use]",
+    "rank": 1,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Speed / Haste",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "This skill gains: \"[After Use] Gain {Cost-1} Haste.\" (If Haste gained would be 0, it becomes 1 instead).",
+    "effectText": "This skill gains: \"[After Use] Gain {Cost-1} Haste.\" (If Haste gained would be 0, it becomes 1 instead)."
+  },
+  {
+    "id": "fast_on_use",
+    "name": "Fast [On Use]",
     "rank": 1,
     "target": "skill",
     "repeating": false,
@@ -309,8 +387,8 @@ const MODULES = [
     "category": "Speed / Haste",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Haste.\"\nThis skill gains: \"[After Use] Gain {Cost-1} Haste.\"\n\nIf Haste gained would be 0, it becomes 1 instead.",
-    "effectText": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Haste.\"\nThis skill gains: \"[After Use] Gain {Cost-1} Haste.\"\n\nIf Haste gained would be 0, it becomes 1 instead."
+    "description": "This skill gains: \"[On Use] Gain {Cost} Haste.\" (If Haste gained would be 0, it becomes 1 instead).",
+    "effectText": "This skill gains: \"[On Use] Gain {Cost} Haste.\" (If Haste gained would be 0, it becomes 1 instead)."
   },
   {
     "id": "flame_step",
@@ -495,8 +573,8 @@ const MODULES = [
     "effectText": "This skill gains: \"[On Kill] Gain 6 Poise.\""
   },
   {
-    "id": "limited_power",
-    "name": "Limited Power",
+    "id": "limited_power_two_dice",
+    "name": "Limited Power (+1 Power to 2 Dice)",
     "rank": 1,
     "target": "die",
     "repeating": false,
@@ -504,8 +582,21 @@ const MODULES = [
     "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with the effects of the \"Powerful\" module.\n\nChoose one:\n\nOne Die gains +2 Base Power.\n\n2 Dice gain +1 Base Power.",
-    "effectText": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with the effects of the \"Powerful\" module.\n\nChoose one:\n\nOne Die gains +2 Base Power.\n\n2 Dice gain +1 Base Power."
+    "description": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. 2 Dice gain +1 Base Power.",
+    "effectText": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. 2 Dice gain +1 Base Power."
+  },
+  {
+    "id": "limited_power_single_die",
+    "name": "Limited Power (+2 Power to 1 Die)",
+    "rank": 1,
+    "target": "die",
+    "repeating": false,
+    "tag": "[Limit]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. One die gains +2 Base Power.",
+    "effectText": "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. One die gains +2 Base Power."
   },
   {
     "id": "mentoring",
@@ -534,8 +625,21 @@ const MODULES = [
     "effectText": "One Die gains: \"[Hit] Deal additional damage equal to Bleed on the target.\""
   },
   {
-    "id": "poised",
-    "name": "Poised",
+    "id": "poised_after_use",
+    "name": "Poised [After Use]",
+    "rank": 1,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Poise",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "This skill gains: \"[After Use] Gain {Cost} Poise.\" (If Cost is 0, this grants 1 instead).",
+    "effectText": "This skill gains: \"[After Use] Gain {Cost} Poise.\" (If Cost is 0, this grants 1 instead)."
+  },
+  {
+    "id": "poised_on_use",
+    "name": "Poised [On Use]",
     "rank": 1,
     "target": "skill",
     "repeating": false,
@@ -543,8 +647,8 @@ const MODULES = [
     "category": "Poise",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Poise.\"\n\nThis skill gains: \"[After Use] Gain {Cost} Poise.\"\n\nIf Cost is 0, this grants 1 instead.",
-    "effectText": "Choose one:\n\nThis skill gains: \"[On Use] Gain {Cost} Poise.\"\n\nThis skill gains: \"[After Use] Gain {Cost} Poise.\"\n\nIf Cost is 0, this grants 1 instead."
+    "description": "This skill gains: \"[On Use] Gain {Cost} Poise.\" (If Cost is 0, this grants 1 instead).",
+    "effectText": "This skill gains: \"[On Use] Gain {Cost} Poise.\" (If Cost is 0, this grants 1 instead)."
   },
   {
     "id": "potential",
@@ -677,8 +781,8 @@ const MODULES = [
     "effectText": "This skill gains: \"[On Use] Gain {Cost} Protection.\"\n\nIf Cost is 0, this grants 1 instead."
   },
   {
-    "id": "sinking",
-    "name": "Sinking",
+    "id": "sinking_all_dice",
+    "name": "Sinking (All Dice)",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -686,8 +790,21 @@ const MODULES = [
     "category": "Sinking",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost+1} Sinking.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Sinking.\n\nYou may choose to replace [Hit] with [Clash Win].",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost+1} Sinking.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Sinking.\n\nYou may choose to replace [Hit] with [Clash Win]."
+    "description": "Any number of Dice gain: \"[Hit] Inflict 1 Sinking.\" (You may choose to replace [Hit] with [Clash Win]).",
+    "effectText": "Any number of Dice gain: \"[Hit] Inflict 1 Sinking.\" (You may choose to replace [Hit] with [Clash Win])."
+  },
+  {
+    "id": "sinking_single_die",
+    "name": "Sinking (Single Die)",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Hit]",
+    "category": "Sinking",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Hit] Inflict {Cost+1} Sinking.\" (You may choose to replace [Hit] with [Clash Win]).",
+    "effectText": "One Die gains: \"[Hit] Inflict {Cost+1} Sinking.\" (You may choose to replace [Hit] with [Clash Win])."
   },
   {
     "id": "siphon_energy",
@@ -768,8 +885,8 @@ const MODULES = [
     "effectText": "One Die gains: \"[Clash Lose] Inflict {Cost+1} Tremor.\"\n\nYou may also choose to add \"and you gain 1 Tremor.\" to the end of that effect."
   },
   {
-    "id": "tremoring",
-    "name": "Tremoring",
+    "id": "tremoring_all_dice",
+    "name": "Tremoring (All Dice)",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -777,12 +894,12 @@ const MODULES = [
     "category": "Tremor",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost} Tremor.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Tremor.\"\n\nYou may choose to replace [Hit] with [Clash Win].\n\nFor every 3 instances of this module among all of your skills, you may gain 1 free instance of Unstable Burst on a skill of your choice.",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Inflict {Cost} Tremor.\"\n\nAny number of Dice gain: \"[Hit] Inflict 1 Tremor.\"\n\nYou may choose to replace [Hit] with [Clash Win].\n\nFor every 3 instances of this module among all of your skills, you may gain 1 free instance of Unstable Burst on a skill of your choice."
+    "description": "Any number of Dice gain: \"[Hit] Inflict 1 Tremor.\" (You may choose to replace [Hit] with [Clash Win]. For every 3 instances among all skills, gain 1 free instance of Unstable Burst).",
+    "effectText": "Any number of Dice gain: \"[Hit] Inflict 1 Tremor.\" (You may choose to replace [Hit] with [Clash Win]. For every 3 instances among all skills, gain 1 free instance of Unstable Burst)."
   },
   {
-    "id": "unstable_burst",
-    "name": "Unstable Burst",
+    "id": "tremoring_single_die",
+    "name": "Tremoring (Single Die)",
     "rank": 1,
     "target": "die",
     "repeating": true,
@@ -790,8 +907,34 @@ const MODULES = [
     "category": "Tremor",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4.\"\n\nOne non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 4.\"",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4.\"\n\nOne non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 4.\""
+    "description": "One Die gains: \"[Hit] Inflict {Cost} Tremor.\" (You may choose to replace [Hit] with [Clash Win]. For every 3 instances among all skills, gain 1 free instance of Unstable Burst).",
+    "effectText": "One Die gains: \"[Hit] Inflict {Cost} Tremor.\" (You may choose to replace [Hit] with [Clash Win]. For every 3 instances among all skills, gain 1 free instance of Unstable Burst)."
+  },
+  {
+    "id": "unstable_burst_clash_win",
+    "name": "Unstable Burst [Clash Win]",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Clash Win]",
+    "category": "Tremor",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 4.\"",
+    "effectText": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 4.\""
+  },
+  {
+    "id": "unstable_burst_hit",
+    "name": "Unstable Burst [Hit]",
+    "rank": 1,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Hit]",
+    "category": "Tremor",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4.\"",
+    "effectText": "One Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 4.\""
   },
   {
     "id": "berserker",
@@ -807,8 +950,21 @@ const MODULES = [
     "effectText": "Can only be applied to skills of Cost 2 or higher.\n\nThis skill gains: \"[On Use] Gain 1 Strength and 2 Fragile.\""
   },
   {
-    "id": "binding",
-    "name": "Binding",
+    "id": "binding_clash_win",
+    "name": "Binding [Clash Win]",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Clash Win]",
+    "category": "Utility",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One Die gains: \"[Clash Win] Inflict 1 Bind.\" (If Cost is 3+, inflict 2 instead).",
+    "effectText": "One Die gains: \"[Clash Win] Inflict 1 Bind.\" (If Cost is 3+, inflict 2 instead)."
+  },
+  {
+    "id": "binding_hit",
+    "name": "Binding [Hit]",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -816,12 +972,12 @@ const MODULES = [
     "category": "Utility",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Inflict 1 Bind.\"\n\nOne Die gains: \"[Clash Win] Inflict 1 Bind.\"\n\nIf this skill's Cost is 3 or higher, Inflict 2 instead.",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Inflict 1 Bind.\"\n\nOne Die gains: \"[Clash Win] Inflict 1 Bind.\"\n\nIf this skill's Cost is 3 or higher, Inflict 2 instead."
+    "description": "One Die gains: \"[Hit] Inflict 1 Bind.\" (If Cost is 3+, inflict 2 instead).",
+    "effectText": "One Die gains: \"[Hit] Inflict 1 Bind.\" (If Cost is 3+, inflict 2 instead)."
   },
   {
-    "id": "bleed_exploit",
-    "name": "Bleed Exploit",
+    "id": "bleed_exploit_counter",
+    "name": "Bleed Exploit (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -829,8 +985,21 @@ const MODULES = [
     "category": "Bleed",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 3+ Bleed.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 3+ Bleed.",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 3+ Bleed.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 3+ Bleed."
+    "description": "One counter Die gains: \"[Check] Power + {Cost} if the target has 3+ Bleed.\"",
+    "effectText": "One counter Die gains: \"[Check] Power + {Cost} if the target has 3+ Bleed.\""
+  },
+  {
+    "id": "bleed_exploit_non_counter",
+    "name": "Bleed Exploit (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Bleed",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 3+ Bleed.\"",
+    "effectText": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 3+ Bleed.\""
   },
   {
     "id": "blumenwand",
@@ -885,8 +1054,8 @@ const MODULES = [
     "effectText": "Can only be applied to skills of Cost 2 or higher.\n\nThis skill gains: \"[On Use] Gain 1 Endurance and 2 Bind.\""
   },
   {
-    "id": "burn_exploit",
-    "name": "Burn Exploit",
+    "id": "burn_exploit_counter",
+    "name": "Burn Exploit (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -894,12 +1063,38 @@ const MODULES = [
     "category": "Burn",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Burn.\"\n\nOne counter die gains: \"[Check] Power + {Cost} if the target has 6+ Burn.\"",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Burn.\"\n\nOne counter die gains: \"[Check] Power + {Cost} if the target has 6+ Burn.\""
+    "description": "One counter die gains: \"[Check] Power + {Cost} if the target has 6+ Burn.\"",
+    "effectText": "One counter die gains: \"[Check] Power + {Cost} if the target has 6+ Burn.\""
   },
   {
-    "id": "burst",
-    "name": "Burst",
+    "id": "burn_exploit_non_counter",
+    "name": "Burn Exploit (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Burn",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Burn.\"",
+    "effectText": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Burn.\""
+  },
+  {
+    "id": "burst_clash_win",
+    "name": "Burst [Clash Win]",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Clash Win]",
+    "category": "Tremor",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 2.\"",
+    "effectText": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst, then reduce target's Tremor by 2.\""
+  },
+  {
+    "id": "burst_hit",
+    "name": "Burst [Hit]",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -907,8 +1102,8 @@ const MODULES = [
     "category": "Tremor",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Tremor Burst, then reduce the target's Tremor by 2.\"\n\nOne non-evade Die gains \"[Clash Win] Trigger Tremor Burst, then reduce the target's Tremor by 2.\"",
-    "effectText": "Choose one:\n\nOne Die gains: \"[Hit] Trigger Tremor Burst, then reduce the target's Tremor by 2.\"\n\nOne non-evade Die gains \"[Clash Win] Trigger Tremor Burst, then reduce the target's Tremor by 2.\""
+    "description": "One Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 2.\"",
+    "effectText": "One Die gains: \"[Hit] Trigger Tremor Burst, then reduce target's Tremor by 2.\""
   },
   {
     "id": "charge_ripper",
@@ -950,8 +1145,21 @@ const MODULES = [
     "effectText": "One Evade Die Gains: \"[On Evade] Gain 1 Poise\""
   },
   {
-    "id": "curative",
-    "name": "Curative",
+    "id": "curative_after_use",
+    "name": "Curative [After Use]",
+    "rank": 2,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Utility",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "This skill gains: \"[After Use] Reduce 1 Ailment on self by {Cost+2}.\"",
+    "effectText": "This skill gains: \"[After Use] Reduce 1 Ailment on self by {Cost+2}.\""
+  },
+  {
+    "id": "curative_on_use",
+    "name": "Curative [On Use]",
     "rank": 2,
     "target": "skill",
     "repeating": false,
@@ -959,8 +1167,8 @@ const MODULES = [
     "category": "Utility",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nThis skill gains: \"[On Use] Reduce 1 Ailment on self by {Cost+2}.\"\n\nThis skill gains: \"[After Use] Reduce 1 Ailment on self by {Cost+2}.\"",
-    "effectText": "Choose one:\n\nThis skill gains: \"[On Use] Reduce 1 Ailment on self by {Cost+2}.\"\n\nThis skill gains: \"[After Use] Reduce 1 Ailment on self by {Cost+2}.\""
+    "description": "This skill gains: \"[On Use] Reduce 1 Ailment on self by {Cost+2}.\"",
+    "effectText": "This skill gains: \"[On Use] Reduce 1 Ailment on self by {Cost+2}.\""
   },
   {
     "id": "deep_cuts",
@@ -976,8 +1184,8 @@ const MODULES = [
     "effectText": "One Die gains: \"[Hit] Deal 1 additional damage, plus 1 more or every 10 HP you are missing.\""
   },
   {
-    "id": "desperation",
-    "name": "Desperation",
+    "id": "desperation_counter",
+    "name": "Desperation (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -985,8 +1193,21 @@ const MODULES = [
     "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to 1 + your total Exhausted skills. (max {Cost+2}).\"\n\nOne Counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to your total Exhausted skills (max {Cost}).\"",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to 1 + your total Exhausted skills. (max {Cost+2}).\"\n\nOne Counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to your total Exhausted skills (max {Cost}).\""
+    "description": "One Counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to your total Exhausted skills (max {Cost}).\"",
+    "effectText": "One Counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to your total Exhausted skills (max {Cost}).\""
+  },
+  {
+    "id": "desperation_non_counter",
+    "name": "Desperation (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to 1 + your total Exhausted skills (max {Cost+2}).\"",
+    "effectText": "One non-counter Die gains: \"[Check] If you have any Exhausted skills, gain Power equal to 1 + your total Exhausted skills (max {Cost+2}).\""
   },
   {
     "id": "emotionally_charged",
@@ -1197,8 +1418,8 @@ const MODULES = [
     "effectText": "This skill gains: \"[Eminence] This skill and the opposing skill both ignore any changes in Power, with the exception of Base Power, and ignores other effects of [Check] tags.\""
   },
   {
-    "id": "ongoing_struggle",
-    "name": "Ongoing Struggle",
+    "id": "ongoing_struggle_counter",
+    "name": "Ongoing Struggle (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": false,
@@ -1206,8 +1427,21 @@ const MODULES = [
     "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] +1 Power for every for every scene that's concluded this combat (max {Cost+2}).\"\n\nOne counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost}).\"",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] +1 Power for every for every scene that's concluded this combat (max {Cost+2}).\"\n\nOne counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost}).\""
+    "description": "One counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost}).\"",
+    "effectText": "One counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost}).\""
+  },
+  {
+    "id": "ongoing_struggle_non_counter",
+    "name": "Ongoing Struggle (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": false,
+    "tag": "[Check]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost+2}).\"",
+    "effectText": "One non-counter Die gains: \"[Check] +1 Power for every scene that's concluded this combat (max {Cost+2}).\""
   },
   {
     "id": "outspeed",
@@ -1327,8 +1561,21 @@ const MODULES = [
     "effectText": "THis skill gains: \"[Limit: 5 Uses]\" and \"[After Use] Regain 1 Light.\""
   },
   {
-    "id": "sanctuary",
-    "name": "Sanctuary",
+    "id": "sanctuary_after_use",
+    "name": "Sanctuary [After Use]",
+    "rank": 2,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Defense / Shield",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "This skill gains: \"[After Use] Give another ally {Cost} Safeguard.\" (If Cost is 0, grants 1 instead).",
+    "effectText": "This skill gains: \"[After Use] Give another ally {Cost} Safeguard.\" (If Cost is 0, grants 1 instead)."
+  },
+  {
+    "id": "sanctuary_on_use",
+    "name": "Sanctuary [On Use]",
     "rank": 2,
     "target": "skill",
     "repeating": false,
@@ -1336,8 +1583,8 @@ const MODULES = [
     "category": "Defense / Shield",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nThis skill gains: \"[On Use] Give another ally {Cost} Safeguard.\"\n\nThis skill gains: \"[After Use] Give another ally {Cost} Safeguard.\"\n\nIf Cost is 0, this grants 1 instead.",
-    "effectText": "Choose one:\n\nThis skill gains: \"[On Use] Give another ally {Cost} Safeguard.\"\n\nThis skill gains: \"[After Use] Give another ally {Cost} Safeguard.\"\n\nIf Cost is 0, this grants 1 instead."
+    "description": "This skill gains: \"[On Use] Give another ally {Cost} Safeguard.\" (If Cost is 0, grants 1 instead).",
+    "effectText": "This skill gains: \"[On Use] Give another ally {Cost} Safeguard.\" (If Cost is 0, grants 1 instead)."
   },
   {
     "id": "shattering",
@@ -1366,8 +1613,8 @@ const MODULES = [
     "effectText": "One Die gains: \"[Hit] You may spend 3 Emotion Points to trigger Sinking Deluge.\""
   },
   {
-    "id": "sinking_exploit",
-    "name": "Sinking Exploit",
+    "id": "sinking_exploit_counter",
+    "name": "Sinking Exploit (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -1375,8 +1622,21 @@ const MODULES = [
     "category": "Sinking",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Sinking.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 6+ Sinking.",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Sinking.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 6+ Sinking."
+    "description": "One counter Die gains: \"[Check] Power + {Cost} if the target has 6+ Sinking.\"",
+    "effectText": "One counter Die gains: \"[Check] Power + {Cost} if the target has 6+ Sinking.\""
+  },
+  {
+    "id": "sinking_exploit_non_counter",
+    "name": "Sinking Exploit (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Sinking",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Sinking.\"",
+    "effectText": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 6+ Sinking.\""
   },
   {
     "id": "stamina_hauler",
@@ -1418,8 +1678,8 @@ const MODULES = [
     "effectText": "This skill gains: \"[On Use] Grant 1 Resolve to {Cost} allies.\"\n\nIf Cost is 0, this grants to 1 ally instead.\n(Community Contributor: Maya)"
   },
   {
-    "id": "struggle",
-    "name": "Struggle",
+    "id": "struggle_counter",
+    "name": "Struggle (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -1427,8 +1687,21 @@ const MODULES = [
     "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the user is at or below half HP.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the user is at or below half HP.\"",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the user is at or below half HP.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the user is at or below half HP.\""
+    "description": "One counter Die gains: \"[Check] Power + {Cost} if the user is at or below half HP.\"",
+    "effectText": "One counter Die gains: \"[Check] Power + {Cost} if the user is at or below half HP.\""
+  },
+  {
+    "id": "struggle_non_counter",
+    "name": "Struggle (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the user is at or below half HP.\"",
+    "effectText": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the user is at or below half HP.\""
   },
   {
     "id": "toughened",
@@ -1457,8 +1730,8 @@ const MODULES = [
     "effectText": "One Die gains: \"[Hit] Transfer up to {Cost+1} of an Ailment from self to target.\""
   },
   {
-    "id": "tremor_exploit",
-    "name": "Tremor Exploit",
+    "id": "tremor_exploit_counter",
+    "name": "Tremor Exploit (Counter Die)",
     "rank": 2,
     "target": "die",
     "repeating": true,
@@ -1466,8 +1739,21 @@ const MODULES = [
     "category": "Tremor",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 8+ Tremor.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 8+ Tremor.\"",
-    "effectText": "Choose one:\n\nOne non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 8+ Tremor.\"\n\nOne counter Die gains: \"[Check] Power + {Cost} if the target has 8+ Tremor.\""
+    "description": "One counter Die gains: \"[Check] Power + {Cost} if the target has 8+ Tremor.\"",
+    "effectText": "One counter Die gains: \"[Check] Power + {Cost} if the target has 8+ Tremor.\""
+  },
+  {
+    "id": "tremor_exploit_non_counter",
+    "name": "Tremor Exploit (Non-Counter)",
+    "rank": 2,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Check]",
+    "category": "Tremor",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 8+ Tremor.\"",
+    "effectText": "One non-counter Die gains: \"[Check] Power + {Cost+1} if the target has 8+ Tremor.\""
   },
   {
     "id": "tremor_chain",
@@ -1626,17 +1912,30 @@ const MODULES = [
     "effectText": "One Die gains: \"[Clash Win] You may spend 1 Light to destroy the target's next Die.\""
   },
   {
-    "id": "defensive_formation",
-    "name": "Defensive Formation",
+    "id": "defensive_formation_after_use",
+    "name": "Defensive Formation [After Use]",
+    "rank": 3,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Defense / Shield",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[After Use] Give another ally 1 Endurance.\"",
+    "effectText": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[After Use] Give another ally 1 Endurance.\""
+  },
+  {
+    "id": "defensive_formation_on_use",
+    "name": "Defensive Formation [On Use]",
     "rank": 3,
     "target": "skill",
     "repeating": false,
     "tag": "[On Use]",
-    "category": "Utility",
+    "category": "Defense / Shield",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Can only be applied to skills of Cost 2 or higher.\n\nChoose 1:\n\nThis skill gains: \"[On Use] Give another ally 1 Endurance.\"\n\nThis skill gains: \"[After Use] Give another ally 1 Endurance.\"",
-    "effectText": "Can only be applied to skills of Cost 2 or higher.\n\nChoose 1:\n\nThis skill gains: \"[On Use] Give another ally 1 Endurance.\"\n\nThis skill gains: \"[After Use] Give another ally 1 Endurance.\""
+    "description": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[On Use] Give another ally 1 Endurance.\"",
+    "effectText": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[On Use] Give another ally 1 Endurance.\""
   },
   {
     "id": "defibrillator",
@@ -1795,17 +2094,30 @@ const MODULES = [
     "effectText": "One Die gains: \"[Hit] Inflict 1 Paralyze\"\n\nIf the Cost of this skill is 3 or higher, also give the Die +1 Base Power."
   },
   {
-    "id": "offense_formation",
-    "name": "Offense Formation",
+    "id": "offense_formation_after_use",
+    "name": "Offense Formation [After Use]",
+    "rank": 3,
+    "target": "skill",
+    "repeating": false,
+    "tag": "[After Use]",
+    "category": "Power / Dice",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[After Use] Give another ally 1 Strength.\"",
+    "effectText": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[After Use] Give another ally 1 Strength.\""
+  },
+  {
+    "id": "offense_formation_on_use",
+    "name": "Offense Formation [On Use]",
     "rank": 3,
     "target": "skill",
     "repeating": false,
     "tag": "[On Use]",
-    "category": "Utility",
+    "category": "Power / Dice",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Can only be applied to skills of Cost 2 or higher.\n\nChoose 1:\n\nThis skill gains: \"[On Use] Give another ally 1 Strength.\"\n\nThis skill gains: \"[After Use] Give another ally 1 Strength.\"",
-    "effectText": "Can only be applied to skills of Cost 2 or higher.\n\nChoose 1:\n\nThis skill gains: \"[On Use] Give another ally 1 Strength.\"\n\nThis skill gains: \"[After Use] Give another ally 1 Strength.\""
+    "description": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[On Use] Give another ally 1 Strength.\"",
+    "effectText": "Can only be applied to skills of Cost 2 or higher. This skill gains: \"[On Use] Give another ally 1 Strength.\""
   },
   {
     "id": "panacea",
@@ -1886,8 +2198,21 @@ const MODULES = [
     "effectText": "Can only be applied to skills of Cost 2 or higher\n\nThis skill gains: \"[On Use] You may spend all your Emotion Points to inflict X Sinking on all enemies, where X is the amount spent -5. (Max. 15 Sinking inflicted).\"\n\nYou may choose to make this effect [After Use] instead."
   },
   {
-    "id": "stable_burst",
-    "name": "Stable Burst",
+    "id": "stable_burst_clash_win",
+    "name": "Stable Burst [Clash Win]",
+    "rank": 3,
+    "target": "die",
+    "repeating": true,
+    "tag": "[Clash Win]",
+    "category": "Tremor",
+    "source": "Core Official",
+    "isHomebrew": false,
+    "description": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst.\"",
+    "effectText": "One non-evade Die gains: \"[Clash Win] Trigger Tremor Burst.\""
+  },
+  {
+    "id": "stable_burst_hit",
+    "name": "Stable Burst [Hit]",
     "rank": 3,
     "target": "die",
     "repeating": true,
@@ -1895,8 +2220,8 @@ const MODULES = [
     "category": "Tremor",
     "source": "Core Official",
     "isHomebrew": false,
-    "description": "Choose one:\n\nOne Die gains \"[Hit] Trigger Tremor Burst\"\n\nOne non-evade Die gains \"[Clash Win] Trigger Tremor Burst\"",
-    "effectText": "Choose one:\n\nOne Die gains \"[Hit] Trigger Tremor Burst\"\n\nOne non-evade Die gains \"[Clash Win] Trigger Tremor Burst\""
+    "description": "One Die gains: \"[Hit] Trigger Tremor Burst.\"",
+    "effectText": "One Die gains: \"[Hit] Trigger Tremor Burst.\""
   },
   {
     "id": "sturdy",
