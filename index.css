@@ -370,8 +370,8 @@ body.crt-disabled .crt-vignette {
   display: flex;
   gap: 6px;
   border-bottom: 1px solid var(--term-border);
-  padding-bottom: 6px;
-  margin-bottom: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -380,9 +380,9 @@ body.crt-disabled .crt-vignette {
   border: 1px solid var(--term-border);
   color: var(--text-dim);
   font-family: var(--font-terminal);
-  padding: 5px 10px;
+  padding: 6px 13px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   transition: all 0.15s;
 }
@@ -413,8 +413,8 @@ body.crt-disabled .crt-vignette {
 .filter-strip, .search-strip {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
   flex-shrink: 0;
 }
@@ -424,7 +424,7 @@ body.crt-disabled .crt-vignette {
   color: var(--text-dim);
   font-family: var(--font-terminal);
   font-size: 11px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   cursor: pointer;
 }
 .term-pill:hover {
@@ -440,24 +440,24 @@ body.crt-disabled .crt-vignette {
 /* Base Cards Grid */
 .base-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 12px;
   flex: 1;
-  min-height: 240px;
-  max-height: 380px;
+  min-height: 250px;
+  max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   padding-right: 4px;
 }
 .base-card-choice {
   background: var(--term-sub-bg);
   border: 1px solid var(--term-border);
-  padding: 8px 10px;
+  padding: 10px 12px;
   cursor: pointer;
   transition: all 0.15s;
-  height: 110px;
-  min-height: 110px;
-  max-height: 110px;
+  height: 125px;
+  min-height: 125px;
+  max-height: 125px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -482,19 +482,19 @@ body.crt-disabled .crt-vignette {
 .base-card-name {
   font-weight: 700;
   color: var(--text-main);
-  font-size: 12px;
+  font-size: 13px;
 }
 .base-card-dice-preview {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  min-height: 20px;
+  min-height: 22px;
   align-items: center;
 }
 .base-card-choice p {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-dim);
-  line-height: 1.3;
+  line-height: 1.35;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -506,24 +506,24 @@ body.crt-disabled .crt-vignette {
 /* Unique Skills Grid */
 .unique-skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
   flex: 1;
-  max-height: 480px;
+  max-height: 500px;
   overflow-y: auto;
   padding-right: 4px;
 }
 .unique-skills-grid .base-card-choice {
-  height: 140px;
-  min-height: 140px;
-  max-height: 140px;
+  height: 150px;
+  min-height: 150px;
+  max-height: 150px;
 }
 
 /* Subpanels */
 .config-subpanel {
   background: var(--term-sub-bg);
   border: 1px solid var(--term-border);
-  padding: 10px;
+  padding: 12px;
   flex-shrink: 0;
 }
 .dice-type-selectors {
@@ -536,14 +536,14 @@ body.crt-disabled .crt-vignette {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px dashed var(--term-border);
-  padding-bottom: 4px;
+  padding-bottom: 5px;
 }
 
 /* Modules Section */
 .module-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
   min-height: 0;
 }
@@ -556,11 +556,11 @@ body.crt-disabled .crt-vignette {
 .mod-list {
   flex: 1;
   height: 100%;
-  min-height: 320px;
-  max-height: 430px;
+  min-height: 340px;
+  max-height: 450px;
   background: var(--term-sub-bg);
   border: 1px solid var(--term-border);
-  padding: 8px;
+  padding: 10px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -569,7 +569,7 @@ body.crt-disabled .crt-vignette {
 .module-item {
   background: var(--term-panel-bg);
   border: 1px solid var(--term-border);
-  padding: 8px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -583,12 +583,12 @@ body.crt-disabled .crt-vignette {
 .module-item-title {
   font-weight: 700;
   color: var(--text-main);
-  font-size: 12px;
+  font-size: 12.5px;
 }
 .module-item-desc {
   font-size: 11px;
   color: var(--text-dim);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* Schematic Preview Card (Industrial Terminal Page) */
