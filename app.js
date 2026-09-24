@@ -697,8 +697,9 @@ function installModuleToSkill(skill, mod, dieIndex, isSpare = false) {
     return;
   }
 
-  // Tag Collision Prevention
-  if (mod.tag && !['[Power]', '[Die Size]', '[Extra Die]'].includes(mod.tag)) {
+  // Tag Collision Prevention (Only for mutually exclusive operational triggers: [On Use], [After Use], [Exhaust], [Eminence], [On Kill], [Hit], [Clash Win], [Clash Lose], [Crit], [On Evade])
+  const operationalTags = ['[On Use]', '[After Use]', '[Exhaust]', '[Eminence]', '[On Kill]', '[Hit]', '[Clash Win]', '[Clash Lose]', '[Crit]', '[On Evade]'];
+  if (mod.tag && operationalTags.includes(mod.tag)) {
     if (mod.target === 'die' && dieIndex !== null && skill.dice[dieIndex]) {
       const targetDie = skill.dice[dieIndex];
       const existingDieTags = [
@@ -706,7 +707,7 @@ function installModuleToSkill(skill, mod, dieIndex, isSpare = false) {
         ...(targetDie.installedModules || []).map(m => m.tag).filter(Boolean)
       ];
       if (existingDieTags.includes(mod.tag)) {
-        showToast(`TAG_COLLISION: DIE_${dieIndex + 1} ALREADY HAS TAG ${mod.tag}. EACH DIE CAN ONLY HAVE ONE OF EACH TAG.`);
+        showToast(`TAG_COLLISION: DIE_${dieIndex + 1} ALREADY HAS TRIGGER TAG ${mod.tag}. EACH DIE CAN ONLY HAVE ONE OF EACH TAG.`);
         return;
       }
     } else if (mod.target === 'skill') {
@@ -715,7 +716,7 @@ function installModuleToSkill(skill, mod, dieIndex, isSpare = false) {
         ...(skill.installedModules || []).map(m => m.tag).filter(Boolean)
       ];
       if (existingGlobalTags.includes(mod.tag)) {
-        showToast(`TAG_COLLISION: PAGE ALREADY HAS GLOBAL TAG ${mod.tag}.`);
+        showToast(`TAG_COLLISION: PAGE ALREADY HAS GLOBAL TRIGGER TAG ${mod.tag}.`);
         return;
       }
     }

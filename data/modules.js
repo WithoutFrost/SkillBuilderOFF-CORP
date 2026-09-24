@@ -1,5 +1,5 @@
 // Stars of the City TTRPG - Complete Official & Community Modules Library
-// Formatted Cleanly with Standalone Variants & Author Attribution
+// Cleanly Formatted with Functional Dice Modifiers & Dynamic Effects
 
 const MODULES = [
   // =========================================================================
@@ -539,7 +539,16 @@ const MODULES = [
     source: "Core Official",
     isHomebrew: false,
     description: "Can only be applied to skills of Cost 1 or higher.\n\nThis skill gains: \"[On Use] Gain {Cost+1} Tremor.\"\n\nIncrease the die size of one non-evade Die on this skill by 1 stage.",
-    effectText: "[On Use] Gain {Cost+1} Tremor.\"\n\nIncrease the die size of one non-evade Die on this skill by 1 stage."
+    effectText: "[On Use] Gain {Cost+1} Tremor.\"\n\nIncrease the die size of one non-evade Die on this skill by 1 stage.",
+    apply: (die) => {
+      if (die.type !== 'Evade') {
+        const progression = [4, 6, 8, 10, 12];
+        const idx = progression.indexOf(die.sides);
+        if (idx !== -1 && idx < progression.length - 1) {
+          die.sides = progression[idx + 1];
+        }
+      }
+    }
   },
   {
     id: "inspirational",
@@ -592,7 +601,10 @@ const MODULES = [
     source: "Core Official",
     isHomebrew: false,
     description: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. 2 Dice gain +1 Base Power.",
-    effectText: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. 2 Dice gain +1 Base Power."
+    effectText: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. 2 Dice gain +1 Base Power.",
+    apply: (die) => {
+      die.bonus = (die.bonus || 0) + 1;
+    }
   },
   {
     id: "limited_power_single_die",
@@ -605,7 +617,10 @@ const MODULES = [
     source: "Core Official",
     isHomebrew: false,
     description: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. One die gains +2 Base Power.",
-    effectText: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. One die gains +2 Base Power."
+    effectText: "Can only be applied to skills with a [Limit]. Effects of this module cannot stack with Powerful. One die gains +2 Base Power.",
+    apply: (die) => {
+      die.bonus = (die.bonus || 0) + 2;
+    }
   },
   {
     id: "mentoring",
@@ -665,12 +680,19 @@ const MODULES = [
     rank: 1,
     target: "die",
     repeating: true,
-    tag: "[Effect]",
+    tag: "[Die Size]",
     category: "Power / Dice",
     source: "Core Official",
     isHomebrew: false,
     description: "One Die has its size increased by 1 stage (d8 to d10 etc. Max of d12)",
-    effectText: "One Die has its size increased by 1 stage (d8 to d10 etc. Max of d12)"
+    effectText: "One Die has its size increased by 1 stage (d8 to d10 etc. Max of d12)",
+    apply: (die) => {
+      const progression = [4, 6, 8, 10, 12];
+      const idx = progression.indexOf(die.sides);
+      if (idx !== -1 && idx < progression.length - 1) {
+        die.sides = progression[idx + 1];
+      }
+    }
   },
   {
     id: "powered_strike",
@@ -692,12 +714,15 @@ const MODULES = [
     rank: 1,
     target: "die",
     repeating: true,
-    tag: "[Effect]",
+    tag: "[Power]",
     category: "Power / Dice",
     source: "Core Official",
     isHomebrew: false,
     description: "One Die gains +1 Base Power.",
-    effectText: "One Die gains +1 Base Power."
+    effectText: "One Die gains +1 Base Power.",
+    apply: (die) => {
+      die.bonus = (die.bonus || 0) + 1;
+    }
   },
   {
     id: "preventative_measures",
@@ -1552,7 +1577,13 @@ const MODULES = [
     source: "Core Official",
     isHomebrew: false,
     description: "One Die of size d6 or higher has its Die type reduced by 1 size and gains +2 Base Power.\n\nYou may also give this die: \"[Check] If thie Die rolled minimum value, you may re-roll it once.\"",
-    effectText: "One Die of size d6 or higher has its Die type reduced by 1 size and gains +2 Base Power.\n\nYou may also give this die: \"[Check] If thie Die rolled minimum value, you may re-roll it once.\""
+    effectText: "One Die of size d6 or higher has its Die type reduced by 1 size and gains +2 Base Power.\n\nYou may also give this die: \"[Check] If thie Die rolled minimum value, you may re-roll it once.\"",
+    apply: (die) => {
+      const progression = [4, 6, 8, 10, 12];
+      const idx = progression.indexOf(die.sides);
+      if (idx > 0) die.sides = progression[idx - 1];
+      die.bonus = (die.bonus || 0) + 2;
+    }
   },
   {
     id: "resonant",
@@ -1902,8 +1933,9 @@ const MODULES = [
     id: "counter",
     name: "Counter",
     rank: 3,
-    target: "die",
+    target: "skill",
     minCost: 1,
+    isCounterDie: true,
     repeating: false,
     tag: "[After Use]",
     category: "Utility",
@@ -2022,9 +2054,10 @@ const MODULES = [
     id: "extra_die",
     name: "Extra Die",
     rank: 3,
-    target: "die",
+    target: "skill",
+    isExtraDie: true,
     repeating: false,
-    tag: "[Effect]",
+    tag: "[Extra Die]",
     category: "Utility",
     source: "Core Official",
     isHomebrew: false,
@@ -2203,7 +2236,12 @@ const MODULES = [
     source: "Core Official",
     isHomebrew: false,
     description: "Can only be applied to skills of Cost 3 or higher.\n\nOne non-counter Die of size d6 or higher gains: \"[Hit] Target loses 1 Light.\", but its size is reduced by 1 stage.",
-    effectText: "[Hit] Target loses 1 Light.\", but its size is reduced by 1 stage."
+    effectText: "[Hit] Target loses 1 Light.\", but its size is reduced by 1 stage.",
+    apply: (die) => {
+      const progression = [4, 6, 8, 10, 12];
+      const idx = progression.indexOf(die.sides);
+      if (idx > 0) die.sides = progression[idx - 1];
+    }
   },
   {
     id: "shackled",
