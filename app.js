@@ -50,13 +50,21 @@ function initDefaultDeck() {
     }
   }
 
-  // Load individual HB enabled set
+  // Load individual HB enabled set (ALL community content active by default)
   const savedHbSet = localStorage.getItem('sotc_enabled_hb_ids');
   if (savedHbSet) {
     try {
       state.enabledHbIds = new Set(JSON.parse(savedHbSet));
     } catch (e) {
       state.enabledHbIds = new Set();
+    }
+  } else {
+    state.enabledHbIds = new Set();
+    if (window.MODULES) {
+      window.MODULES.filter(m => m.isHomebrew).forEach(m => state.enabledHbIds.add(m.id));
+    }
+    if (window.SKILL_BASES) {
+      window.SKILL_BASES.filter(b => b.category === 'Community' || !!b.credit).forEach(b => state.enabledHbIds.add(b.id));
     }
   }
 }
